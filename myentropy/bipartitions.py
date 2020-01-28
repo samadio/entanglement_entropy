@@ -56,7 +56,7 @@ def create_W(k,Y,N,chosen):
     nonzeros=[aux.decimal_to_state(m*2**L+(Y**m%N),k+L) for m in range(2**k)]
     not_chosen=notchosen(chosen,k+L)  
 
-    indexes=[ (aux.to_decimal(np.take(i,chosen)),aux.to_decimal((np.take(i,not_chosen)))) for i in nonzeros]
+    indexes=[ (aux.to_decimal(aux.split_components(i,chosen)),aux.to_decimal((aux.split_components(i,not_chosen)))) for i in nonzeros]
     row=[elem[0] for elem in indexes]
     col=[elem[1] for elem in indexes]
     data=np.ones(2**k)*2**(-k/2)

@@ -60,3 +60,13 @@ def find_coprime(N):
             while(Y in used):
                 Y=randint(2,N)
         else: return Y
+
+def split_components(array,chosen):
+    '''
+    Given an input array and selected components returns two arrays.
+    The first array contains only the chosen components and the other the remainders
+    '''
+    if( max(chosen) not in range(len(array)))  :
+        raise ValueError('the chosen '+str(max(chosen))+' bit is not present in a '+str(len(array))+' bits register')
+    return [array[i] for i in chosen]
+
