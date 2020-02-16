@@ -1,72 +1,79 @@
+from random import randint
+
 import numpy as np
 import math
 
-def decimal_to_state(m,nqubit):
-    '''
-        Return binary representation of m as array of nqubit qubits
 
-            Parameters
-            ----------                
-            m:   Integer
-                number to be representend in binary form
-                
-            nqubit: Integer
-                Total number of qubits used for representation
-                    
-    '''
-    
-    arr=np.binary_repr(m)
-    arr=[int(i) for i in arr]
-    if(len(arr)>nqubit):
-        raise ValueError(str(nqubit)+" are not enough qubits to store the number "+str(m))
-    if(len(arr)==nqubit): return arr
-    return list(np.zeros(nqubit-len(arr),dtype=np.int16))+ arr
-
-
-def to_decimal(array):
-    '''
-        Return decimal representation of the array storing a number in binary form
-
-        Example: input [1,0,1,0,1] returns 21 
-            Parameters
-            ----------                
-            array: List
-                array containing binary representation of a number
-                
-                    
-    '''
-
-    size=len(array)
-    return int(np.sum([array[i] *2**(size-i-1)  for i in range(size)]))
-
-def find_coprime(N):     
+def decimal_to_binary(number, length):
     """
-            Find a coprime of N for N>2
-            Parameters
+        Returns binary representation of number as string of fixed length
+
+        Parameters
             ----------
-            N:  Integer
-                Number to find the coprime of
+            number:  Integer
+                     decimal number to be converted in binary form
+
+            length:  Integer
+                     minimum length of returned string
+
+            ----------
+            Example:
+            decimal_to_binary(2,5) will yield "00010"
+    """
+
+    return np.binary_repr(number, length)
+
+
+def to_decimal(string_list: list):
+    """
+        converts a list of char representing a binary number and returns
+        its decimal representation as integer
+
+         :param string_list:  list
+                              list of binary chars representing an integer number
+         :return: int
+                  decimal representation of string_list
 
     """
-    if(N<3):
+
+    string = "".join(string_list)
+    return int(string, 2)
+
+
+def coprime(n: int):
+    """
+            Find a coprime of n for n>2
+         :param n: int
+                 Number to find the coprime of
+         :return: int
+                  a coprime of n
+
+    """
+    if n < 3:
         raise ValueError("Illegal argument: coprimes exist for N>2")
-    Y=randint(2,N)
-    used=[]
+    Y = randint(2, n)
+    used = []
     while 1:
-        a=math.gcd(Y,N)
-        if (a>1):
-            #this Y is not coprime
+        a = math.gcd(Y, n)
+        if a > 1:
+            # this Y is not coprime
             used.append(Y)
-            while(Y in used):
-                Y=randint(2,N)
-        else: return Y
+            while (Y in used):
+                Y = randint(2, n)
+        else:
+            return Y
 
-def split_components(array,chosen):
-    '''
-    Given an input array and selected components returns two arrays.
-    The first array contains only the chosen components and the other the remainders
-    '''
-    if( max(chosen) not in range(len(array)))  :
-        raise ValueError('the chosen '+str(max(chosen))+' bit is not present in a '+str(len(array))+' bits register')
-    return [array[i] for i in chosen]
 
+def select_components(data: list, indexes: list) -> list:
+    """
+             :return: list
+                      slicing of data list containing only input at selected indexes
+    """
+    if max(indexes) not in range(len(data)):
+        raise ValueError(
+            'the chosen {0} bit is not present in a {1} bits register'.format(str(max(indexes)), str(len(data))))
+    return [data[i] for i in indexes]
+
+
+def lfy(n: int) -> int:
+    return int(math.ceil(math.log2(n)))

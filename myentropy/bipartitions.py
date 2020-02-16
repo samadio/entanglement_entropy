@@ -1,94 +1,115 @@
 import math
-from math import log2 as log2
-import numpy as np 
-from myentropy import auxiliary as aux
-from scipy.sparse.coo import coo_matrix as sparsemat
-from scipy.sparse.linalg import svds as sparsesvd
+from typing import List, Any
 
-def notchosen(chosen,system_size):
+import numpy as np
+from myentropy import auxiliary as aux
+from scipy.sparse.coo import coo_matrix as coo_matrix
+from scipy.sparse.linalg import svds as sparsesvd
+from scipy.special import comb as bin_coeff
+from random import random
+
+
+def notchosen(chosen: list, system_size: int) -> list:
     """
             Return array containing the qubit NOT in the partition
-            
+
             Parameters
-            ----------                
+            ----------
             chosen:   List
                 List of the qubits selected as partition, in the form [1,3,7,..]
-                
+
             system_size: Integer
                 Total number of qubits
-                    
+
     """
-    
-    notchosen=list(set(list(range(system_size)))-set(chosen))
-    notchosen.sort()
-    return notchosen
+
+    notselected = list(set(list(range(system_size))) - set(chosen))
+    return notselected
 
 
-
-def create_W(k,Y,N,chosen):
-    '''
-    Return the state of the quantum system in Shor's algorithm after the k-th computational step, for given N,Y.
-    The state is returned as sparse matrix.
-            
-            Parameters
-            ----------                
-              
-            k:      Integer
-                Computational step of Shor's algorithm
-            
-            Y:      Integer
-                Random number in [2,N-1] to find the order of
-
-            N:      Integer
-                Number to be factorized in Shor's algorithm
-
-            chosen:   List
-                List of the qubits selected as partition, in the form [1,3,7,..]
-              
-    
-    '''
-    
-    L=int(math.ceil(log2(N)))
-    if(k>2*L):
-        raise ValueError(str(k)+"th computational step does not make sense in a "+str(2*L)+" qubits control register")
-    
-    #nonzero elements of psi in binary form
-    nonzeros=[aux.decimal_to_state(m*2**L+(Y**m%N),k+L) for m in range(2**k)]
-    not_chosen=notchosen(chosen,k+L)  
-
-    indexes=[ (aux.to_decimal(aux.split_components(i,chosen)),aux.to_decimal((aux.split_components(i,not_chosen)))) for i in nonzeros]
-    row=[elem[0] for elem in indexes]
-    col=[elem[1] for elem in indexes]
-    data=np.ones(2**k)*2**(-k/2)
-    
-    return sparsemat((data,(row,col)), shape=(2**len(chosen),2**len(not_chosen))    ).tocsc()
+def number_of_bipartitions(size):
+    return bin_coeff(size, size / 2, exact=True)
 
 
-def entanglement_entropy(k,Y,N,chosen):
+def create_w(bipartition: list, not_chosen: list, nonzero_binary: list):
+    """
+    create matrix
+    """
+    row = [aux.to_decimal(aux.select_components(i, bipartition)) for i in nonzero_binary]
+    col = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
+    k = math.log2(len(nonzero_binary))
+    data = np.ones(2 ** k) * (2 ** (- k / 2))
+    return coo_matrix((data, (row, col)), shape=(2 ** len(bipartition), 2 ** len(not_chosen))).tocsc()
 
-    '''
-    This function calculates the bipartite entanglement entropy in Shor's algorithm for a given bipartition.
-            
-            Parameters
-            ----------                
-              
-            k:      Integer
-                Computational step of Shor's algorithm
-            
-            Y:      Integer
-                Random number in [2,N-1] to find the order of
 
-            N:      Integer
-                Number to be factorized in Shor's algorithm
+def entropy(k, L, bipartition, nonzero_binary):
+    '''fixed k and bipartition'''
 
-            chosen:   List
-                List of the qubits selected as partition (not traced away), in the form [1,3,7,..]
-              
-    '''
+    not_chosen = notchosen(bipartition, k + L)
 
-    W=create_W(k,Y,N,chosen)
-        
-    eigs=np.array(sparsesvd(W,k=min(np.shape(W))-1,which='LM',return_singular_vectors=False))
-    eigs=eigs*eigs
-    entr=-np.sum([i*log2(i) for i in eigs if i>0])
-    return entr
+    # global W_time
+    # t0=time.time()
+
+    W = create_w(bipartition, not_chosen, nonzero_binary)
+    # W_time.append(time.time()-t0)
+
+    # global svd_time
+    # t0=time.time()
+
+    # if (eigen == False):
+    # if (sparse):
+    eigs = sparsesvd(W, \
+                     k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False
+                     )
+
+    # else:
+    #    eigs = numpysvd(W.toarray(), \
+    #                    compute_uv=False)
+    # eigs = eigs * eigs
+
+    # if (eigen == True):
+    #    if (W.shape[0] >= W.shape[1]):
+    #        reduced_rho = W.T.dot(W)
+    #    else:
+    #        reduced_rho = W.dot(W.T)
+    # reduced rho assumed hermitian
+    #    if (sparse):
+    #        eigs = sparse_eigsh(reduced_rho, k=min(np.shape(W)) - 1, which='LM', \
+    #                            return_eigenvectors=False)
+    #    else:
+    #        eigs = np.linalg.eigvalsh(reduced_rho.toarray())
+
+    # svd_time.append(time.time()-t0)
+
+    return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
+
+
+def montecarlo_single_k(k, L, nonzero_binary, step, maxiter=10000):
+    """
+    fixed k, montecarlo on bipartitions
+    """
+
+    qubits = range(k + L)
+    partition_dimension = len(qubits) // 2
+    entropies = []
+    previous_mean = 0
+
+    for i in range(maxiter):
+        if (i % step == 0):
+            bipartition_batch = [random.sample(range(k + L), partition_dimension) for j in range(step)]
+        current_bipartition = bipartition_batch[i % step]
+        current_entropy = entropy(k, L, current_bipartition, nonzero_binary)
+        entropies.append(current_entropy)
+
+        i += 1
+        if i % step == 0:
+            current_mean = np.mean(entropies)
+            if i == step:
+                previous_mean = current_mean
+                continue
+            tol = i ** (- 1 / 2)
+            if np.abs(previous_mean - current_mean) < tol:
+                return entropies
+            previous_mean = current_mean
+
+    return entropies
