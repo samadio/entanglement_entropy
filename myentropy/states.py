@@ -1,7 +1,13 @@
+import math
+
 import time
 from itertools import combinations
 from math import log2 as log2
+
 import qiskit as qt
+from qiskit.aqua.components.iqfts import Standard as IQFT
+from qiskit.quantum_info import Statevector as qstate
+
 from cmath import exp as exp
 import numpy as np
 import scipy
@@ -24,7 +30,7 @@ def operator_IQFT(n_qubits: int):
     linear_size = 2 ** n_qubits
     omega = - 2 * np.pi * 1j / linear_size
     return linear_size ** (- 1 / 2) * np.array( \
-        np.exp([[omega * i * k for i in range(linear_size)] for k in range(linear_size)]),dtype=complex)
+        np.exp([[omega * i * k for i in range(linear_size)] for k in range(linear_size)]), dtype=complex)
 
 
 def operator_IQFT_row(n_qubits: int, row_idx: int) -> np.ndarray:
@@ -44,7 +50,7 @@ def operator_IQFT_row(n_qubits: int, row_idx: int) -> np.ndarray:
     if row_idx >= linear_size:
         raise ValueError("The row {0} does not exist for {1} qubits".format(str(row_idx), str(n_qubits)))
     return linear_size ** (- 1 / 2) * np.array( \
-        np.exp([omega * i * row_idx for i in range(linear_size)]),dtype=complex)
+        np.exp([omega * i * row_idx for i in range(linear_size)]), dtype=complex)
 
 
 def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list):
@@ -78,19 +84,36 @@ def entanglement_entropy_from_state(state, chosen):
 def slicing_index(i, L):
     return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
 
+
 def applyIQFT(L, current_state):
-    #final_state = []
-    #indexes = [slicing_index(i, L) for i in range(2 ** L)]
-    #for i in range(2 ** (3 * L)):
+    prev_control_register = qt.QuantumRegister(2 * L, 'control')
+    circuit = qt.QuantumCircuit(prev_control_register, qt.QuantumRegister(L, 'target'))
+    circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)),[i for i in range(3 * L)])
+    constructor = IQFT(2 * L)
+
+    new_control_register = qt.QuantumRegister(2 * L, 'control')
+    IQFT_circuit = qt.QuantumCircuit(new_control_register, qt.QuantumRegister(L, 'target'))
+    constructor.construct_circuit(mode='circuit', circuit=IQFT_circuit, qubits=new_control_register)
+
+    circuit = circuit.combine(IQFT_circuit)
+
+    backend = qt.Aer.get_backend('statevector_simulator')
+    final_state = qt.execute(circuit, backend).result().get_statevector()
+
+
+    # return final_state
+    # final_state = []
+    # indexes = [slicing_index(i, L) for i in range(2 ** L)]
+    # for i in range(2 ** (3 * L)):
     #   if i % (2 ** L) == 0:
     #       IQFT_row = operator_IQFT_row(2 * L, i / 2 ** L)
     #   final_state.append(np.dot(IQFT_row, current_state[indexes[i % (2 ** L)], :].toarray()))
     #    final_state.append(np.dot(IQFT_row,current_state[indexes[i% (2 ** L)]]))
 
-    #operator = operator_IQFT(2 * L)
+    # operator = operator_IQFT(2 * L)
     # final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] for j in range(2 ** (2 * L))]) \
     #               for i in range(2 ** (3 * L))]
-    #final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] \
+    # final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] \
     #                           if j * 2 ** L in current_state.nonzero()[0] else 0 for j in range(2 ** (2 * L))]) \
     #               for i in range(2 ** (3 * L))]
 
@@ -147,7 +170,7 @@ def entanglement_entropy(Y, N, step):
     for k in range(1, 2 * L + 1):
         considered_qubits = range(k + L)
         bipartition_size = (k + L) // 2
-        data = np.ones(2 ** k) * 2 ** (- k)
+        data = np.ones(2 ** k) * 2 ** (- k / 2)
         row = nonzeros_decimal[: 2 ** k]
         col = np.zeros(2 ** k)
         current_state = bip.coo_matrix((data, (row, col)), shape=(2 ** (k + L), 1)).tocsr()
@@ -160,7 +183,6 @@ def entanglement_entropy(Y, N, step):
             print(str(k) + "-th computational step done")
 
     ''' IQFT '''
-
     # FINAL STATE CAN BE COMPUTED WITHOUT THIS TENSOR PRODUCT, but probably would be less efficient: TO BE TESTED
     # tensor product: 3s but 78% of memory for N=21. Not feasible for N>=32
     # explicit calculation with for loop: 150 s, 1% memory usage
@@ -178,11 +200,5 @@ def entanglement_entropy(Y, N, step):
 
 
 # midway: 13 s L=5 ,330 s for L=6
-#entanglement_entropy(13, 21, 100)
-
-'''
-11 s test=5, 400 test=6 
-for i in range(2 ** (3 * test)):
-    a.append(np.dot( range(2 ^(2*test)), range(2^ (2 * test))))
-print(time.time()-t0)
-'''
+# qiskit: 0.25 ,1s for L=5 ,6 sec for L = 6 ,37 sec for L = 7,(311 sec  L = 8 memory 20%),
+_ = entanglement_entropy(13, 15, 100)
