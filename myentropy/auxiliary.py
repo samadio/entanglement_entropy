@@ -19,6 +19,7 @@ def decimal_to_binary(number, length):
             ----------
             Example:
             decimal_to_binary(2,5) will yield "00010"
+            :rtype: basestring
     """
 
     return np.binary_repr(number, length)

@@ -1,5 +1,4 @@
 import math
-from typing import List, Any
 
 import numpy as np
 from myentropy import auxiliary as aux

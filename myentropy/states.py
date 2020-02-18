@@ -1,7 +1,8 @@
 import time
 from itertools import combinations
 from math import log2 as log2
-
+import qiskit as qt
+from cmath import exp as exp
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
@@ -22,8 +23,28 @@ def operator_IQFT(n_qubits: int):
 
     linear_size = 2 ** n_qubits
     omega = - 2 * np.pi * 1j / linear_size
-    return (linear_size ** (- 1 / 2)) * np.array(
-        np.exp([[omega * i * k for i in range(linear_size)] for k in range(linear_size)]))
+    return linear_size ** (- 1 / 2) * np.array( \
+        np.exp([[omega * i * k for i in range(linear_size)] for k in range(linear_size)]),dtype=complex)
+
+
+def operator_IQFT_row(n_qubits: int, row_idx: int) -> np.ndarray:
+    """
+
+    :param n_qubits: int
+                     number of qubits the IQFT will be applied to
+    :param row_idx:  int
+                     row of the IQFT operator to construct
+
+    :return: numpy.array()
+             row_idx-th rows of the IQFT matrix for n qubits
+    """
+
+    linear_size = 2 ** n_qubits
+    omega = - 2 * np.pi * 1j * linear_size ** (- 1)
+    if row_idx >= linear_size:
+        raise ValueError("The row {0} does not exist for {1} qubits".format(str(row_idx), str(n_qubits)))
+    return linear_size ** (- 1 / 2) * np.array( \
+        np.exp([omega * i * row_idx for i in range(linear_size)]),dtype=complex)
 
 
 def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list):
@@ -33,7 +54,7 @@ def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: l
     col = [aux.to_decimal((aux.select_components(i, notchosen))) for i in nonzero_idx_binary]
     k = int(log2(len(nonzero_idx)))
     data = np.ones(2 ** k) * (2 ** (- k / 2))
-    return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsc()
+    return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsr()
 
 
 def entanglement_entropy_from_state(state, chosen):
@@ -52,6 +73,44 @@ def entanglement_entropy_from_state(state, chosen):
     W = matrix_from_state(state, chosen, notchosen)
 
     return "poivediamo"
+
+
+def slicing_index(i, L):
+    return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
+
+def applyIQFT(L, current_state):
+    #final_state = []
+    #indexes = [slicing_index(i, L) for i in range(2 ** L)]
+    #for i in range(2 ** (3 * L)):
+    #   if i % (2 ** L) == 0:
+    #       IQFT_row = operator_IQFT_row(2 * L, i / 2 ** L)
+    #   final_state.append(np.dot(IQFT_row, current_state[indexes[i % (2 ** L)], :].toarray()))
+    #    final_state.append(np.dot(IQFT_row,current_state[indexes[i% (2 ** L)]]))
+
+    #operator = operator_IQFT(2 * L)
+    # final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] for j in range(2 ** (2 * L))]) \
+    #               for i in range(2 ** (3 * L))]
+    #final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] \
+    #                           if j * 2 ** L in current_state.nonzero()[0] else 0 for j in range(2 ** (2 * L))]) \
+    #               for i in range(2 ** (3 * L))]
+
+    # naive implementation: no memory usage but O (2 ** (5 * L)) computations
+    # omega = exp(2 * np.pi * 1j * 2 ** (- 2 * L))
+    # normalization_constant = 2 ** (- L)
+    # final_state = normalization_constant * np.array([np.sum([(omega ** (i * k)) * current_state[k * 2 ** L, 0] \
+    #                                                             if k * 2 ** L in current_state.nonzero()[0] else 0 for \
+    #                                                         k in range(2 ** (2 * L))]) \
+    #                                                 for i in range(2 ** (3 * L))])
+
+    # probably to be deleted
+    # target_state_sequence = np.array([list(aux.decimal_to_binary((Y ** m) % N, L)) for m in range(2 ** (2 * L))],dtype=np.short)
+    # target_state_sequence = bip.coo_matrix(target_state_sequence).tocsr()
+    # print(target_state_sequence.toarray())
+
+    # final_state = np.zeros(2 ** (3 * L))
+    # for l in range (2 ** (2 * L)):
+
+    return 0
 
 
 def entanglement_entropy(Y, N, step):
@@ -79,7 +138,7 @@ def entanglement_entropy(Y, N, step):
     print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
 
     # TBI using period and control it's right
-    nonzeros_decimal = [m * 2 ** L + (Y ** m % N) for m in range(2 ** (2 * L))]
+    nonzeros_decimal = [m * 2 ** L + ((Y ** m) % N) for m in range(2 ** (2 * L))]
     print("nonzeros done")
     results = []
     current_state = 0
@@ -91,29 +150,39 @@ def entanglement_entropy(Y, N, step):
         data = np.ones(2 ** k) * 2 ** (- k)
         row = nonzeros_decimal[: 2 ** k]
         col = np.zeros(2 ** k)
-        current_state = bip.coo_matrix((data, (row, col)), shape=(2 ** (k + L), 1)).tocsc()
+        current_state = bip.coo_matrix((data, (row, col)), shape=(2 ** (k + L), 1)).tocsr()
 
         if bip.number_of_bipartitions(k + L) <= step:
             results.append([entanglement_entropy_from_state(current_state, chosen) \
                             for chosen in combinations(considered_qubits, bipartition_size)])
         else:
-            print("ciao")
             # results.append((k, bip.montecarlo_single_k(k, Y, L, nonzero_binary, step)))
-        print(str(k) + "-th computational step done")
+            print(str(k) + "-th computational step done")
 
     ''' IQFT '''
 
     # FINAL STATE CAN BE COMPUTED WITHOUT THIS TENSOR PRODUCT, but probably would be less efficient: TO BE TESTED
     # tensor product: 3s but 78% of memory for N=21. Not feasible for N>=32
     # explicit calculation with for loop: 150 s, 1% memory usage
-    operator = operator_IQFT(2 * L)
-    current_state = current_state.tolil()
+    # constructing diagonal sparse matrix: do not make sense: I should store 2**(5*L) elements. unfeasible like tensor
+    # midway: even worst: 90% memory usage and a lot of time
+
     t0 = time.time()
-    final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] for j in range(2 ** (2 * L))]) for i
-                   in range(2 ** (3 * L))]
-    # final_state = sparse_tensordot(operator_IQFT(2 * L), sparse_identity(2 ** L)).dot(current_state)
+    # if L <= 5:
+    #    final_state = sparse_tensordot(operator_IQFT(2 * L), sparse_identity(2 ** L)).dot(current_state)
+    # else:
+    final_state = applyIQFT(L, current_state)
     print("time: " + str(time.time() - t0))
+
     return results
 
 
-print(entanglement_entropy(13, 21, 100))
+# midway: 13 s L=5 ,330 s for L=6
+#entanglement_entropy(13, 21, 100)
+
+'''
+11 s test=5, 400 test=6 
+for i in range(2 ** (3 * test)):
+    a.append(np.dot( range(2 ^(2*test)), range(2^ (2 * test))))
+print(time.time()-t0)
+'''
