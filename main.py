@@ -1,9 +1,8 @@
 import time
-from myentropy.bipartitions import entanglement_entropy as entropy
+from Entropy.src.auxiliary.bipartitions import entanglement_entropy as entropy
 from math import log2 as log2
 from math import ceil as ceil
 from math import gcd as GCD
-from itertools import combinations
 import numpy as np
 
 N=39

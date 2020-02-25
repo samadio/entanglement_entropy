@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-from myentropy import auxiliary as aux
+from src.auxiliary import auxiliary as aux
 from scipy.sparse.coo import coo_matrix as coo_matrix
 from scipy.sparse.linalg import svds as sparsesvd
 from scipy.special import comb as bin_coeff

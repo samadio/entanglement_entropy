@@ -1,20 +1,14 @@
-import math
-
 import time
 from itertools import combinations
 from math import log2 as log2
 
 import qiskit as qt
 from qiskit.aqua.components.iqfts import Standard as IQFT
-from qiskit.quantum_info import Statevector as qstate
 
-from cmath import exp as exp
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
-from scipy.sparse import kron as sparse_tensordot
-from myentropy import auxiliary as aux
-from myentropy import bipartitions as bip
+from src.auxiliary import auxiliary as aux, bipartitions as bip
 
 
 def operator_IQFT(n_qubits: int):
@@ -88,7 +82,7 @@ def slicing_index(i, L):
 def applyIQFT(L, current_state):
     prev_control_register = qt.QuantumRegister(2 * L, 'control')
     circuit = qt.QuantumCircuit(prev_control_register, qt.QuantumRegister(L, 'target'))
-    circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)),[i for i in range(3 * L)])
+    circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)), [i for i in range(3 * L)])
     constructor = IQFT(2 * L)
 
     new_control_register = qt.QuantumRegister(2 * L, 'control')
@@ -99,7 +93,6 @@ def applyIQFT(L, current_state):
 
     backend = qt.Aer.get_backend('statevector_simulator')
     final_state = qt.execute(circuit, backend).result().get_statevector()
-
 
     # return final_state
     # final_state = []
@@ -194,11 +187,13 @@ def entanglement_entropy(Y, N, step):
     #    final_state = sparse_tensordot(operator_IQFT(2 * L), sparse_identity(2 ** L)).dot(current_state)
     # else:
     final_state = applyIQFT(L, current_state)
+    # results.append(qt_entropy(partial_trace(final_state,seeWhatInDocumentation)))
     print("time: " + str(time.time() - t0))
 
     return results
 
 
 # midway: 13 s L=5 ,330 s for L=6
-# qiskit: 0.25 ,1s for L=5 ,6 sec for L = 6 ,37 sec for L = 7,(311 sec  L = 8 memory 20%),
-_ = entanglement_entropy(13, 15, 100)
+# qiskit final state: 0.25 L=4  ,1s for L=5 ,6 sec for L = 6 ,37 sec for L = 7,(311 sec  L = 8 memory 20%),after 90 min  L=9 mem swapping then error)
+# qiskit: partial trace: L = 4, L = 5,
+_ = entanglement_entropy(13, 21, 100)
