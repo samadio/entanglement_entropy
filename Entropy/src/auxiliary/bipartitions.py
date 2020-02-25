@@ -12,44 +12,63 @@ def notchosen(chosen: list, system_size: int) -> list:
     """
             Return array containing the qubit NOT in the partition
 
-            Parameters
-            ----------
-            chosen:   List
-                List of the qubits selected as partition, in the form [1,3,7,..]
+            :param      chosen
+                         List of the qubits selected as partition, in the form [1,3,7,..]
 
-            system_size: Integer
-                Total number of qubits
+            :param     system_size
+                         Total number of qubits
 
+            :return    notchosen
+                        list of qubits not chosen
     """
+
+    if max(chosen) > system_size:
+        raise ValueError("a nonexistent qubit has been chosen")
 
     notselected = list(set(list(range(system_size))) - set(chosen))
     return notselected
 
 
-def number_of_bipartitions(size):
+def number_of_bipartitions(size: int) -> int:
     return bin_coeff(size, size / 2, exact=True)
 
 
-def create_w(bipartition: list, not_chosen: list, nonzero_binary: list):
+def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list) -> coo_matrix:
     """
-    create matrix
+        Creates and return a matrix from state s.t. W dot W.T is reduced density matrix according to selected bipartition
+
+        :param      chosen:
+                     list of chosen qubits
+
+        :param      notchosen:
+                     list of qubits to trace away
+
+        :param      nonzero_binary:
+                     list s.t. nonzero_binary[j] = j-th index in which the state is nonzero, represented as binary string:
+                     psi = [0,1,0,1,0] -> nonzero_binary = ['001','011']
+
+        :return W
+                 matrix s.t. W.dot(W.T) = reduced density matrix according to chosen qubits
     """
-    row = [aux.to_decimal(aux.select_components(i, bipartition)) for i in nonzero_binary]
-    col = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
-    k = math.log2(len(nonzero_binary))
+
+    #row idxs of nonzero elements in W
+    rows = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_binary]
+    cols = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
+
+    k = int(math.log2(len(nonzero_binary)))
     data = np.ones(2 ** k) * (2 ** (- k / 2))
-    return coo_matrix((data, (row, col)), shape=(2 ** len(bipartition), 2 ** len(not_chosen))).tocsc()
+    return coo_matrix((data, (rows, cols)), shape=(2 ** len(chosen), 2 ** len(not_chosen))).tocsc()
 
 
-def entropy(k, L, bipartition, nonzero_binary):
-    '''fixed k and bipartition'''
+def entropy(k: int, L: int, chosen: list, nonzero_binary: list) -> float:
+    """fixed k and bipartition"""
 
-    not_chosen = notchosen(bipartition, k + L)
+    not_chosen = notchosen(chosen, k + L)
 
     # global W_time
     # t0=time.time()
 
-    W = create_w(bipartition, not_chosen, nonzero_binary)
+    W = create_w_from_binary(chosen, not_chosen, nonzero_binary)
     # W_time.append(time.time()-t0)
 
     # global svd_time
@@ -83,7 +102,7 @@ def entropy(k, L, bipartition, nonzero_binary):
     return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
 
 
-def montecarlo_single_k(k, L, nonzero_binary, step, maxiter=10000):
+def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter:int=10000) -> list:
     """
     fixed k, montecarlo on bipartitions
     """
@@ -112,3 +131,26 @@ def montecarlo_single_k(k, L, nonzero_binary, step, maxiter=10000):
             previous_mean = current_mean
 
     return entropies
+
+# def entanglement_entropy_forall_k(Y, N, step=200, sparse=True, eigen=False):
+#     if (sparse == True and eigen == True): print("sparse eigen")
+#     if (sparse == True and eigen == False): print("sparse svd")
+#     if (sparse == False and eigen == True): print("numpy eigen")
+#     if (sparse == False and eigen == False): print("numpy svd")
+#
+#     L = int(ceil(log2(N)))
+#     print("number of qubits: " + str(L) + "+" + str(2 * L))
+#     nonzeros_decimal = [m * 2 ** L + (Y ** m % N) for m in range(2 ** (2 * L))]
+#     print("nonzeros done")
+#     results = []
+#     for k in range(1, 2 * L + 1):
+#         nonzero_binary = [decimal_to_binary(i, k + L) for i in nonzeros_decimal[:2 ** k]]
+#         considered_qubits = range(k + L)
+#         if (number_of_bipartitions(k + L) <= step):
+#             results.append((k, [entropy(k, L, chosen, nonzero_binary, sparse=sparse, eigen=eigen) \
+#                                 for chosen in combinations(considered_qubits, len(considered_qubits) // 2)]))
+#         else:
+#             results.append((k, montecarlo_single_k(k, Y, L, nonzero_binary, step, sparse=sparse, eigen=eigen)))
+#             # print(str(k)+"-th computational step done")
+#
+#     return results

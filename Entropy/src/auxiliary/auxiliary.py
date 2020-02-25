@@ -4,36 +4,37 @@ import numpy as np
 import math
 
 
-def decimal_to_binary(number, length):
+def decimal_to_binary(number: int, length: int) -> str:
     """
         Returns binary representation of number as string of fixed length
 
-        Parameters
-            ----------
-            number:  Integer
-                     decimal number to be converted in binary form
+            :param     number
+                        decimal number to be converted in binary form
 
-            length:  Integer
-                     minimum length of returned string
+            :param     length
+                        minimum length of returned string
+
+            :return    representation
+                        binary representation of decimal as string of determined length
 
             ----------
             Example:
             decimal_to_binary(2,5) will yield "00010"
-            :rtype: basestring
     """
 
     return np.binary_repr(number, length)
 
 
-def to_decimal(string_list: list):
+def to_decimal(string_list: list) -> int:
     """
         converts a list of char representing a binary number and returns
         its decimal representation as integer
 
-         :param string_list:  list
-                              list of binary chars representing an integer number
-         :return: int
-                  decimal representation of string_list
+         :param    string_list
+                    list of binary chars representing an integer number
+
+         :return:
+                    decimal representation of string_list
 
     """
 
@@ -41,13 +42,15 @@ def to_decimal(string_list: list):
     return int(string, 2)
 
 
-def coprime(n: int):
+def coprime(n: int) -> int:
     """
             Find a coprime of n for n>2
-         :param n: int
-                 Number to find the coprime of
-         :return: int
-                  a coprime of n
+
+         :param    n
+                    Number to find the coprime of
+
+         :return   Y
+                    a coprime of n
 
     """
     if n < 3:
@@ -59,7 +62,7 @@ def coprime(n: int):
         if a > 1:
             # this Y is not coprime
             used.append(Y)
-            while (Y in used):
+            while Y in used:
                 Y = randint(2, n)
         else:
             return Y
@@ -67,9 +70,18 @@ def coprime(n: int):
 
 def select_components(data: list, indexes: list) -> list:
     """
-             :return: list
-                      slicing of data list containing only input at selected indexes
+             return only selected components of input
+
+             :param     data
+                         data to select from. Slicing must be supported
+
+             :param     indexes
+                         list of integers representing indexes to be selected
+
+             :return
+                         slicing of data list containing only input at selected indexes
     """
+
     if max(indexes) not in range(len(data)):
         raise ValueError(
             'the chosen {0} bit is not present in a {1} bits register'.format(str(max(indexes)), str(len(data))))
@@ -77,4 +89,13 @@ def select_components(data: list, indexes: list) -> list:
 
 
 def lfy(n: int) -> int:
+    """
+        return number of qubits needed to represent the integer number
+
+        :param      n:
+                    number to be represented
+
+        :return     L:
+                    number of qubits needed to represent n
+    """
     return int(math.ceil(math.log2(n)))
