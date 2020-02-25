@@ -8,18 +8,12 @@ from scipy.special import comb as bin_coeff
 from random import random
 
 
-def notchosen(chosen: list, system_size: int) -> list:
+def notchosen(chosen: list[int], system_size: int) -> list[int]:
     """
             Return array containing the qubit NOT in the partition
-
-            :param      chosen
-                         List of the qubits selected as partition, in the form [1,3,7,..]
-
-            :param     system_size
-                         Total number of qubits
-
-            :return    notchosen
-                        list of qubits not chosen
+    :param chosen:  List of the qubits selected as partition, in the form [1,3,7,..]
+    :param system_size:  Total number of qubits
+    :return: notchosen:  list of qubits not chosen
     """
 
     if max(chosen) > system_size:
@@ -33,22 +27,15 @@ def number_of_bipartitions(size: int) -> int:
     return bin_coeff(size, size / 2, exact=True)
 
 
-def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list) -> coo_matrix:
+def create_w_from_binary(chosen: list[int], not_chosen: list[int], nonzero_binary: list[str]) -> coo_matrix:
     """
-        Creates and return a matrix from state s.t. W dot W.T is reduced density matrix according to selected bipartition
+        Return W s.t. W dot W.T is reduced density matrix according to selected bipartition
 
-        :param      chosen:
-                     list of chosen qubits
-
-        :param      notchosen:
-                     list of qubits to trace away
-
-        :param      nonzero_binary:
-                     list s.t. nonzero_binary[j] = j-th index in which the state is nonzero, represented as binary string:
-                     psi = [0,1,0,1,0] -> nonzero_binary = ['001','011']
-
-        :return W
-                 matrix s.t. W.dot(W.T) = reduced density matrix according to chosen qubits
+    :param chosen:      list of chosen qubits
+    :param notchosen:   list of qubits to trace away
+    :param nonzero_binary:  list s.t. nonzero_binary[j] = j-th index in which the state is nonzero, represented as
+                            binary string:   psi = [0,1,0,1,0] -> nonzero_binary = ['001','011']
+    :return: W
     """
 
     #row idxs of nonzero elements in W
@@ -60,7 +47,7 @@ def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list) -
     return coo_matrix((data, (rows, cols)), shape=(2 ** len(chosen), 2 ** len(not_chosen))).tocsc()
 
 
-def entropy(k: int, L: int, chosen: list, nonzero_binary: list) -> float:
+def entropy(k: int, L: int, chosen: list[int], nonzero_binary: list[str]) -> float:
     """fixed k and bipartition"""
 
     not_chosen = notchosen(chosen, k + L)
@@ -102,9 +89,15 @@ def entropy(k: int, L: int, chosen: list, nonzero_binary: list) -> float:
     return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
 
 
-def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter:int=10000) -> list:
+def montecarlo_single_k(k: int, L: int, nonzero_binary: list[int], step: int, maxiter:int=10000) -> list[float]:
     """
-    fixed k, montecarlo on bipartitions
+        Description
+    :param k: computational step
+    :param L: number of qubits in target register
+    :param nonzero_binary: list containing indexes of nonzero elements, each as binary strings
+    :param step: step of Montecarlo method
+    :param maxiter: maximum number of iteration for Montecarlo method
+    :return: results as list of entropies
     """
 
     qubits = range(k + L)

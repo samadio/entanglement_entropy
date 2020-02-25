@@ -11,43 +11,46 @@ from scipy.sparse import identity as sparse_identity
 from src.auxiliary import auxiliary as aux, bipartitions as bip
 
 
-def operator_IQFT(n_qubits: int):
+def operator_IQFT(n: int) -> np.array:
+    """
+        Build and return the IQFT matrix for n qubits
+
+    :param n:   number of qubits the IQFT will be applied to
+    :return:    matrix form of IQFT for n qubits
     """
 
-    :param n_qubits: Integer
-                     number of qubits the IQFT will be applied to
-
-    :return: numpy.ndarray()
-                    matrix form of IQFT for n qubits
-    """
-
-    linear_size = 2 ** n_qubits
+    linear_size = 2 ** n
     omega = - 2 * np.pi * 1j / linear_size
     return linear_size ** (- 1 / 2) * np.array( \
         np.exp([[omega * i * k for i in range(linear_size)] for k in range(linear_size)]), dtype=complex)
 
 
-def operator_IQFT_row(n_qubits: int, row_idx: int) -> np.ndarray:
+def operator_IQFT_row(n: int, i: int) -> np.array[complex]:
+    """
+        Build and return i-th row of IQFT matrix acting on n qubits
+
+    :param n:    number of qubits the IQFT will be applied to
+    :param i:    row of the IQFT operator to construct
+    :return:  i-th row of the IQFT matrix for n qubits
     """
 
-    :param n_qubits: int
-                     number of qubits the IQFT will be applied to
-    :param row_idx:  int
-                     row of the IQFT operator to construct
-
-    :return: numpy.array()
-             row_idx-th rows of the IQFT matrix for n qubits
-    """
-
-    linear_size = 2 ** n_qubits
+    linear_size = 2 ** n
     omega = - 2 * np.pi * 1j * linear_size ** (- 1)
-    if row_idx >= linear_size:
-        raise ValueError("The row {0} does not exist for {1} qubits".format(str(row_idx), str(n_qubits)))
+    if i >= linear_size:
+        raise ValueError("The row {0} does not exist for {1} qubits".format(str(i), str(n)))
     return linear_size ** (- 1 / 2) * np.array( \
-        np.exp([omega * i * row_idx for i in range(linear_size)]), dtype=complex)
+        np.exp([omega * i * i for i in range(linear_size)]), dtype=complex)
 
 
-def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list):
+def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list[int], notchosen: list[int]) -> scipy.sparse.coo_matrix:
+    """
+        Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix
+
+    :param state: state of the system
+    :param chosen: observable qubits
+    :param notchosen: qubits to trace away
+    :return:  W
+    """
     nonzero_idx, _ = state.nonzero()
     nonzero_idx_binary = [aux.decimal_to_binary(idx, int(log2(state.shape[0]))) for idx in nonzero_idx]
     row = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_idx_binary]
@@ -57,17 +60,13 @@ def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: l
     return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsr()
 
 
-def entanglement_entropy_from_state(state, chosen):
+def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list[int]) -> float:
     """
+        Compute entanglement entropt of state according to chosen bipartition of qubits
 
-    :param state:       array[int]
-                        binary array representing state of the system of qubits
-
-    :param chosen:      list[int]
-                        selected qubits
-
-    :return: S:         double
-                        entanglement entropy
+    :param state:   array representing state of the system of qubits
+    :param chosen:  selected qubits
+    :return: S
     """
     notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
     W = matrix_from_state(state, chosen, notchosen)
@@ -75,11 +74,19 @@ def entanglement_entropy_from_state(state, chosen):
     return "poivediamo"
 
 
-def slicing_index(i, L):
+def slicing_index(i: int, L: int) -> list[int]:
+    """auxiliary function"""
     return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
 
 
-def applyIQFT(L, current_state):
+def applyIQFT(L: int, current_state: scipy.sparse.coo_matrix) -> scipy.sparse.coo_matrix:
+    """
+        Apply IQFT on target register of current state and returns final state
+
+    :param L: number of qubits in target register
+    :param current_state: state to apply IQFT on
+    :return: state after IQFT
+            """
     prev_control_register = qt.QuantumRegister(2 * L, 'control')
     circuit = qt.QuantumCircuit(prev_control_register, qt.QuantumRegister(L, 'target'))
     circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)), [i for i in range(3 * L)])
@@ -126,28 +133,21 @@ def applyIQFT(L, current_state):
     # final_state = np.zeros(2 ** (3 * L))
     # for l in range (2 ** (2 * L)):
 
-    return 0
+    return final_state
 
 
-def entanglement_entropy(Y, N, step):
+def entanglement_entropy(Y: int, N: int, step: int) -> list[tuple[int,float]]:
     """
     This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
     bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
     used when required. For k = [1, 2L] the computational steps consists in modular exponentiation. k = 2L + 1
     consists in the application of the IQFT on the control register.
 
-    :param N: Integer
-              Number to be factorized
-
-    :param Y: Integer
-              coprime of N to find the order of
-
-    :param step: Integer
-              steps of Montecarlo method: at least 2 * steps iteration will be computed
-
-    :return: S:  List of tuples
-    `           Entanglement entropy: S[k][1] will give entropy for (k+1)-th computation steps computed on different bipartitions
-
+:param N:       Number to be factorized
+:param Y:       coprime of N to find the order of
+:param step:    step of Montecarlo method: at least 2 * steps iteration will be computed
+:return: S:     Entanglement entropy: S[k][1] will give entropy for (k+1)-th computation steps computed
+                on different bipartitions
     """
 
     L = aux.lfy(N)
