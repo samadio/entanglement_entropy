@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from auxiliary.bipartitions import *
-
+import numpy as np
 
 class Test(TestCase):
     def test_notchosen(self):

@@ -1,4 +1,3 @@
-import time
 from itertools import combinations
 from math import log2 as log2
 
@@ -8,7 +7,13 @@ from qiskit.aqua.components.iqfts import Standard as IQFT
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
-from src.auxiliary import auxiliary as aux, bipartitions as bip
+from auxiliary import auxiliary as aux, bipartitions as bip
+
+
+def construct_state(k, L, row):
+    data = np.ones(2 ** k) * 2 ** (- k / 2)
+    col = np.zeros(2 ** k)
+    return bip.coo_matrix((data, (row, col)), shape=(2 ** (k + L), 1)).tocsr()
 
 
 def operator_IQFT(n: int) -> np.array:
@@ -25,7 +30,7 @@ def operator_IQFT(n: int) -> np.array:
         np.exp([[omega * i * k for i in range(linear_size)] for k in range(linear_size)]), dtype=complex)
 
 
-def operator_IQFT_row(n: int, i: int) -> np.array[complex]:
+def operator_IQFT_row(n: int, i: int) -> np.array:
     """
         Build and return i-th row of IQFT matrix acting on n qubits
 
@@ -42,7 +47,7 @@ def operator_IQFT_row(n: int, i: int) -> np.array[complex]:
         np.exp([omega * i * i for i in range(linear_size)]), dtype=complex)
 
 
-def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list[int], notchosen: list[int]) -> scipy.sparse.coo_matrix:
+def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list) -> scipy.sparse.coo_matrix:
     """
         Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix
 
@@ -60,9 +65,9 @@ def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list[int], notchos
     return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsr()
 
 
-def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list[int]) -> float:
+def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list) -> float:
     """
-        Compute entanglement entropt of state according to chosen bipartition of qubits
+        Compute entanglement entropy of state according to chosen bipartition of qubits
 
     :param state:   array representing state of the system of qubits
     :param chosen:  selected qubits
@@ -70,16 +75,19 @@ def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list
     """
     notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
     W = matrix_from_state(state, chosen, notchosen)
+    eigs = bip.sparsesvd(W, \
+                         k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
+    eigs = eigs * eigs
 
-    return "poivediamo"
+    return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
 
 
-def slicing_index(i: int, L: int) -> list[int]:
+def slicing_index(i: int, L: int) -> list:
     """auxiliary function"""
     return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
 
 
-def applyIQFT(L: int, current_state: scipy.sparse.coo_matrix) -> scipy.sparse.coo_matrix:
+def applyIQFT_circuit(L: int, current_state: scipy.sparse.coo_matrix) -> scipy.sparse.coo_matrix:
     """
         Apply IQFT on target register of current state and returns final state
 
@@ -136,7 +144,27 @@ def applyIQFT(L: int, current_state: scipy.sparse.coo_matrix) -> scipy.sparse.co
     return final_state
 
 
-def entanglement_entropy(Y: int, N: int, step: int) -> list[tuple[int,float]]:
+def applyIQFT(L: int, current_state: qt.quantum_info.Statevector) -> qt.quantum_info.Statevector:
+    """
+        Apply IQFT on target register of current state and returns final state
+
+    :param L: number of qubits in target register
+    :param current_state: state to apply IQFT on
+    :return: state after IQFT
+            """
+
+    constructor = IQFT(2 * L)
+
+    control_register = qt.QuantumRegister(2 * L, 'control')
+    IQFT_operator = qt.quantum_info.Operator( \
+        constructor.construct_circuit(mode='matrix', qubits=control_register) \
+        )
+
+    final_state = current_state.evolve(IQFT_operator, range(2 * L))
+    return final_state
+
+
+def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     """
     This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
     bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
@@ -151,29 +179,29 @@ def entanglement_entropy(Y: int, N: int, step: int) -> list[tuple[int,float]]:
     """
 
     L = aux.lfy(N)
-    print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
+    # print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
 
     # TBI using period and control it's right
     nonzeros_decimal = [m * 2 ** L + ((Y ** m) % N) for m in range(2 ** (2 * L))]
-    print("nonzeros done")
+    # print("nonzeros done")
     results = []
     current_state = 0
 
     ''' Modular exponentiation  '''
     for k in range(1, 2 * L + 1):
+        current_state = construct_state(k, L, nonzeros_decimal[:2 ** k])
         considered_qubits = range(k + L)
         bipartition_size = (k + L) // 2
-        data = np.ones(2 ** k) * 2 ** (- k / 2)
-        row = nonzeros_decimal[: 2 ** k]
-        col = np.zeros(2 ** k)
-        current_state = bip.coo_matrix((data, (row, col)), shape=(2 ** (k + L), 1)).tocsr()
+        ### TO BE DELETED:
+        combinations_considered = [bip.random_bipartition(range(k + L), (k+L) // 2) for j in range(200)]
 
-        if bip.number_of_bipartitions(k + L) <= step:
-            results.append([entanglement_entropy_from_state(current_state, chosen) \
-                            for chosen in combinations(considered_qubits, bipartition_size)])
-        else:
-            # results.append((k, bip.montecarlo_single_k(k, Y, L, nonzero_binary, step)))
-            print(str(k) + "-th computational step done")
+
+        # if bip.number_of_bipartitions(k + L) <= step:
+        results.append([entanglement_entropy_from_state(current_state, chosen) \
+                        for chosen in combinations_considered])
+        # else:
+        # results.append((k, bip.montecarlo_single_k(k, Y, L, nonzero_binary, step)))
+        # print(str(k) + "-th computational step done")
 
     ''' IQFT '''
     # FINAL STATE CAN BE COMPUTED WITHOUT THIS TENSOR PRODUCT, but probably would be less efficient: TO BE TESTED
@@ -182,18 +210,16 @@ def entanglement_entropy(Y: int, N: int, step: int) -> list[tuple[int,float]]:
     # constructing diagonal sparse matrix: do not make sense: I should store 2**(5*L) elements. unfeasible like tensor
     # midway: even worst: 90% memory usage and a lot of time
 
-    t0 = time.time()
+    # t0 = time.time()
     # if L <= 5:
     #    final_state = sparse_tensordot(operator_IQFT(2 * L), sparse_identity(2 ** L)).dot(current_state)
     # else:
-    final_state = applyIQFT(L, current_state)
-    # results.append(qt_entropy(partial_trace(final_state,seeWhatInDocumentation)))
-    print("time: " + str(time.time() - t0))
-
+    final_state = applyIQFT_circuit(L, current_state)
+    combinations_considered = [i for i in combinations([i for i in range(3 * L)], 3 * L // 2)][:200]
+    results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in combinations_considered])
     return results
-
 
 # midway: 13 s L=5 ,330 s for L=6
 # qiskit final state: 0.25 L=4  ,1s for L=5 ,6 sec for L = 6 ,37 sec for L = 7,(311 sec  L = 8 memory 20%),after 90 min  L=9 mem swapping then error)
-# qiskit: partial trace: L = 4, L = 5,
-_ = entanglement_entropy(13, 21, 100)
+
+# _ = entanglement_entropy(13, 21, 100)

@@ -19,7 +19,7 @@ def decimal_to_binary(number: int, length: int) -> str:
     return np.binary_repr(number, length)
 
 
-def to_decimal(string_list: list[str]) -> int:
+def to_decimal(string_list: list) -> int:
     """
         converts a list of char representing a binary number and returns its decimal representation as integer
      :param    string_list: list of binary chars representing an integer number
@@ -51,7 +51,7 @@ def coprime(n: int) -> int:
             return Y
 
 
-def select_components(data: list, indexes: list[int]) -> list:
+def select_components(data: list, indexes: list) -> list:
     """
          Return only selected components of input
      :param     data: data to select from. Slicing must be supported

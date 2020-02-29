@@ -1,14 +1,18 @@
-import math
-
+from math import log2 as log2
 import numpy as np
-from src.auxiliary import auxiliary as aux
+
+from auxiliary import auxiliary as aux
 from scipy.sparse.coo import coo_matrix as coo_matrix
 from scipy.sparse.linalg import svds as sparsesvd
 from scipy.special import comb as bin_coeff
-from random import random
+from random import sample as sample
 
 
-def notchosen(chosen: list[int], system_size: int) -> list[int]:
+def random_bipartition(sample_space: list, bipartition_size: int) -> list:
+    return sample(sample_space, bipartition_size)
+
+
+def notchosen(chosen: list, system_size: int) -> list:
     """
             Return array containing the qubit NOT in the partition
     :param chosen:  List of the qubits selected as partition, in the form [1,3,7,..]
@@ -27,7 +31,7 @@ def number_of_bipartitions(size: int) -> int:
     return bin_coeff(size, size / 2, exact=True)
 
 
-def create_w_from_binary(chosen: list[int], not_chosen: list[int], nonzero_binary: list[str]) -> coo_matrix:
+def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list) -> coo_matrix:
     """
         Return W s.t. W dot W.T is reduced density matrix according to selected bipartition
 
@@ -42,54 +46,23 @@ def create_w_from_binary(chosen: list[int], not_chosen: list[int], nonzero_binar
     rows = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_binary]
     cols = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
 
-    k = int(math.log2(len(nonzero_binary)))
+    k = int(log2(len(nonzero_binary)))
     data = np.ones(2 ** k) * (2 ** (- k / 2))
     return coo_matrix((data, (rows, cols)), shape=(2 ** len(chosen), 2 ** len(not_chosen))).tocsc()
 
 
-def entropy(k: int, L: int, chosen: list[int], nonzero_binary: list[str]) -> float:
+def entropy(k: int, L: int, chosen: list, nonzero_binary: list) -> float:
     """fixed k and bipartition"""
 
     not_chosen = notchosen(chosen, k + L)
 
-    # global W_time
-    # t0=time.time()
-
     W = create_w_from_binary(chosen, not_chosen, nonzero_binary)
-    # W_time.append(time.time()-t0)
 
-    # global svd_time
-    # t0=time.time()
-
-    # if (eigen == False):
-    # if (sparse):
-    eigs = sparsesvd(W, \
-                     k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False
-                     )
-
-    # else:
-    #    eigs = numpysvd(W.toarray(), \
-    #                    compute_uv=False)
-    # eigs = eigs * eigs
-
-    # if (eigen == True):
-    #    if (W.shape[0] >= W.shape[1]):
-    #        reduced_rho = W.T.dot(W)
-    #    else:
-    #        reduced_rho = W.dot(W.T)
-    # reduced rho assumed hermitian
-    #    if (sparse):
-    #        eigs = sparse_eigsh(reduced_rho, k=min(np.shape(W)) - 1, which='LM', \
-    #                            return_eigenvectors=False)
-    #    else:
-    #        eigs = np.linalg.eigvalsh(reduced_rho.toarray())
-
-    # svd_time.append(time.time()-t0)
-
+    eigs = sparsesvd(W, k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
     return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
 
 
-def montecarlo_single_k(k: int, L: int, nonzero_binary: list[int], step: int, maxiter:int=10000) -> list[float]:
+def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter:int=10000) -> list:
     """
         Description
     :param k: computational step
@@ -107,7 +80,7 @@ def montecarlo_single_k(k: int, L: int, nonzero_binary: list[int], step: int, ma
 
     for i in range(maxiter):
         if (i % step == 0):
-            bipartition_batch = [random.sample(range(k + L), partition_dimension) for j in range(step)]
+            bipartition_batch = [random_bipartition(qubits, partition_dimension) for j in range(step)]
         current_bipartition = bipartition_batch[i % step]
         current_entropy = entropy(k, L, current_bipartition, nonzero_binary)
         entropies.append(current_entropy)
