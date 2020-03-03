@@ -25,3 +25,31 @@ scipy:
       N =65, Y = 13, qubits = 21
            modular time: 771.0749435424805
            IQFT time: 1147.4138679504395
+
+Number of bipartitions: 100
+qiskit:
+      N =15, Y = 13, qubits = 12
+           modular time: 0.9044997692108154
+           IQFT time: 0.5291924476623535
+      N =21, Y = 13, qubits = 15
+           modular time: 3.6269454956054688
+           IQFT time: 5.9107561111450195
+      N =33, Y = 13, qubits = 18
+           modular time: 41.75478219985962
+           IQFT time: 39.38407039642334
+      N =65, Y = 13, qubits = 21
+           modular time: 477.4070541858673
+           IQFT time: 1231.1509823799133
+scipy:
+      N =15, Y = 13, qubits = 12
+           modular time: 1.7495355606079102
+           IQFT time: 0.6262452602386475
+      N =21, Y = 13, qubits = 15
+           modular time: 4.928674936294556
+           IQFT time: 5.86899733543396
+      N =33, Y = 13, qubits = 18
+           modular time: 42.44106888771057
+           IQFT time: 43.07234835624695
+      N =65, Y = 13, qubits = 21
+           modular time: 880.6834135055542
+           IQFT time: 1236.9838290214539

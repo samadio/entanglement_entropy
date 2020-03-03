@@ -3,6 +3,7 @@ from math import log2 as log2
 
 import qiskit as qt
 from qiskit.aqua.components.iqfts import Standard as IQFT
+from qiskit.quantum_info import Statevector
 
 import numpy as np
 import scipy
@@ -87,7 +88,7 @@ def slicing_index(i: int, L: int) -> list:
     return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
 
 
-def applyIQFT_circuit(L: int, current_state: scipy.sparse.coo_matrix) -> scipy.sparse.coo_matrix:
+def applyIQFT_circuit(L: int, current_state: scipy.sparse.coo_matrix) -> np.array:
     """
         Apply IQFT on target register of current state and returns final state
 
@@ -144,7 +145,7 @@ def applyIQFT_circuit(L: int, current_state: scipy.sparse.coo_matrix) -> scipy.s
     return final_state
 
 
-def applyIQFT(L: int, current_state: qt.quantum_info.Statevector) -> qt.quantum_info.Statevector:
+def applyIQFT(L: int, current_state: Statevector) -> Statevector:
     """
         Apply IQFT on target register of current state and returns final state
 
@@ -152,13 +153,17 @@ def applyIQFT(L: int, current_state: qt.quantum_info.Statevector) -> qt.quantum_
     :param current_state: state to apply IQFT on
     :return: state after IQFT
             """
-
-    constructor = IQFT(2 * L)
-
     control_register = qt.QuantumRegister(2 * L, 'control')
-    IQFT_operator = qt.quantum_info.Operator( \
-        constructor.construct_circuit(mode='matrix', qubits=control_register) \
-        )
+    target_register = qt.QuantumRegister(L, 'target')
+
+    constructor = IQFT(control_register)
+    IQFT_circuit = qt.QuantumCircuit(control_register, target_register)
+    constructor.construct_circuit(mode='circuit', circuit=IQFT_circuit, qubits=control_register)
+    print("costruito circuito")
+
+    IQFT_operator = qt.quantum_info.Operator(IQFT_circuit)
+    print("costruito operatore")
+    del IQFT_circuit
 
     final_state = current_state.evolve(IQFT_operator, range(2 * L))
     return final_state
@@ -193,8 +198,7 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
         considered_qubits = range(k + L)
         bipartition_size = (k + L) // 2
         ### TO BE DELETED:
-        combinations_considered = [bip.random_bipartition(range(k + L), (k+L) // 2) for j in range(200)]
-
+        combinations_considered = [bip.random_bipartition(range(k + L), (k + L) // 2) for j in range(200)]
 
         # if bip.number_of_bipartitions(k + L) <= step:
         results.append([entanglement_entropy_from_state(current_state, chosen) \
@@ -216,7 +220,8 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     # else:
     final_state = applyIQFT_circuit(L, current_state)
     combinations_considered = [i for i in combinations([i for i in range(3 * L)], 3 * L // 2)][:200]
-    results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in combinations_considered])
+    results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in
+                    combinations_considered])
     return results
 
 # midway: 13 s L=5 ,330 s for L=6

@@ -1,11 +1,7 @@
 from unittest import TestCase
 
 from states import *
-
-
-def left_notation_to_right_notation(array: np.array) -> np.array:
-    return array
-
+from time import time
 
 class Test(TestCase):
 
@@ -64,3 +60,15 @@ class Test(TestCase):
         print(myreduced)
         print(qreduced)
         self.assertTrue(False)
+
+    def test_operator_not_doable(self):
+        k = 10
+        L = 5
+        Y = 13
+        N = 21
+        nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
+        state = construct_state(k, L, nonzeros_decimal)
+        qstate = qt.quantum_info.Statevector(state.toarray())
+
+        with self.assertRaises(MemoryError):
+            applyIQFT(L, qstate).data.tolist()
