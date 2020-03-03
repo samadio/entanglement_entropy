@@ -73,11 +73,12 @@ def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list
     :param chosen:  selected qubits
     :return: S
     """
+
     notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
     W = matrix_from_state(state, chosen, notchosen)
     eigs = bip.sparsesvd(W, \
                          k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
-    eigs = eigs * eigs
+    eigs = [i ** 2 for i in eigs]
 
     return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
 
@@ -166,23 +167,23 @@ def applyIQFT(L: int, current_state: qt.quantum_info.Statevector) -> qt.quantum_
 
 def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     """
-    This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
-    bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
-    used when required. For k = [1, 2L] the computational steps consists in modular exponentiation. k = 2L + 1
-    consists in the application of the IQFT on the control register.
+        This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
+        bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
+        used when required. For k = [1, 2L] the computational steps consists in modular exponentiation. k = 2L + 1
+        consists in the application of the IQFT on the control register.
 
-:param N:       Number to be factorized
-:param Y:       coprime of N to find the order of
-:param step:    step of Montecarlo method: at least 2 * steps iteration will be computed
-:return: S:     Entanglement entropy: S[k][1] will give entropy for (k+1)-th computation steps computed
-                on different bipartitions
+    :param N:       Number to be factorized
+    :param Y:       coprime of N to find the order of
+    :param step:    step of Montecarlo method: at least 2 * steps iteration will be computed
+    :return: S:     Entanglement entropy: S[k][1] will give entropy for (k+1)-th computation steps computed
+                    on different bipartitions
     """
 
     L = aux.lfy(N)
     # print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
 
     # TBI using period and control it's right
-    nonzeros_decimal = [m * 2 ** L + ((Y ** m) % N) for m in range(2 ** (2 * L))]
+    nonzeros_decimal = aux.nonzeros_decimal(2 * L, N, Y)
     # print("nonzeros done")
     results = []
     current_state = 0
@@ -220,6 +221,6 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     return results
 
 # midway: 13 s L=5 ,330 s for L=6
-# qiskit final state: 0.25 L=4  ,1s for L=5 ,6 sec for L = 6 ,37 sec for L = 7,(311 sec  L = 8 memory 20%),after 90 min  L=9 mem swapping then error)
+# qiskit final state: 0.25 L=4  ,1s for L=5 ,6 sec for L = 6 ,37 sec for L = 7,(311 sec  L = 8 memory 20%), after 90 min  L=9 mem swapping then error)
 
 # _ = entanglement_entropy(13, 21, 100)

@@ -42,7 +42,7 @@ def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list) -
     :return: W
     """
 
-    #row idxs of nonzero elements in W
+    # row idxs of nonzero elements in W
     rows = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_binary]
     cols = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
 
@@ -59,10 +59,11 @@ def entropy(k: int, L: int, chosen: list, nonzero_binary: list) -> float:
     W = create_w_from_binary(chosen, not_chosen, nonzero_binary)
 
     eigs = sparsesvd(W, k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
+    eigs = eigs * eigs
     return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
 
 
-def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter:int=10000) -> list:
+def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter: int = 10000) -> list:
     """
         Description
     :param k: computational step
@@ -98,15 +99,17 @@ def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter
 
     return entropies
 
+
 # def entanglement_entropy_forall_k(Y, N, step=200, sparse=True, eigen=False):
 #     if (sparse == True and eigen == True): print("sparse eigen")
 #     if (sparse == True and eigen == False): print("sparse svd")
 #     if (sparse == False and eigen == True): print("numpy eigen")
 #     if (sparse == False and eigen == False): print("numpy svd")
 #
-#     L = int(ceil(log2(N)))
+#     L = aux.lfy(N)
 #     print("number of qubits: " + str(L) + "+" + str(2 * L))
-#     nonzeros_decimal = [m * 2 ** L + (Y ** m % N) for m in range(2 ** (2 * L))]
+#     nonzeros_decimal = aux.nonzeros_decimal(2 * L, N, Y)
+#     [m * 2 ** L + (Y ** m % N) for m in range(2 ** (2 * L))]
 #     print("nonzeros done")
 #     results = []
 #     for k in range(1, 2 * L + 1):

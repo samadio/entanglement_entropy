@@ -23,3 +23,13 @@ class AuxiliaryTests(TestCase):
         self.assertEqual(lfy(129), 8)
         self.assertEqual(lfy(312), 9)
 
+    def test_nonzeros_decimal(self):
+        L = 5
+        N = 21
+        Y = 13
+        self.assertListEqual(nonzeros_decimal(2 * L, N, Y), [m * 2 ** L + ((Y ** m) % N) for m in range(2 ** (2 * L))])
+
+    def test_decimal_to_binary(self):
+        nonzero = [1, 3, 5, 7]
+        expected = ['001', '011', '101', '111']
+        self.assertListEqual([decimal_to_binary(i,3) for i in nonzero], expected)

@@ -72,3 +72,14 @@ def lfy(n: int) -> int:
     :return number of qubits needed to represent n
     """
     return int(math.ceil(math.log2(n)))
+
+
+def nonzeros_decimal(k: int, N: int, Y: int) -> list:
+    """
+        Return nonzero indexes of modular exponentiation for Y coprime of N at k-th computational step
+    :param k: computational step
+    :param N: number to be factorized
+    :param Y: coprime of N
+    :return: list of indexes of nonzero elements of state
+    """
+    return [m * 2 ** lfy(N) + ((Y ** m) % N) for m in range(2 ** k)]
