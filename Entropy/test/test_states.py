@@ -48,12 +48,12 @@ class Test(TestCase):
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         nonzeros_binary = [aux.decimal_to_binary(i, number_of_qubits) for i in nonzeros_decimal]
         state = construct_state(k, L, nonzeros_decimal)
-        tries = 10
+        tries = 50
         for i in range(tries):
             chosen = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
             state_entropy = entanglement_entropy_from_state(state, chosen)
-            binary_entropy = bip.entropy(k, L, chosen, nonzeros_binary)
-            self.assertAlmostEqual(state_entropy, binary_entropy, places=14)
+            binary_entropy = binentropy(k, L, chosen, nonzeros_binary)
+            self.assertTrue(np.abs(binary_entropy - state_entropy) < 1e-12)
 
     def test_myentropy_equal_qentropy(self):
         k = 8
@@ -64,10 +64,10 @@ class Test(TestCase):
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         state = construct_state(k, L, nonzeros_decimal)
         qstate = Statevector(state.toarray())
-        tries = 20
+        tries = 50
         for i in range(tries):
             chosen_qubits = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
             notchosen_qubits = notchosen(chosen_qubits, number_of_qubits)
             myentropy = entanglement_entropy_from_state(state, chosen_qubits)
             qentropy = entropy(partial_trace(qstate, [number_of_qubits - 1 - i for i in notchosen_qubits]))
-            self.assertAlmostEqual(myentropy, qentropy, places=14)
+            self.assertTrue(np.abs(myentropy - qentropy) < 1e-12)
