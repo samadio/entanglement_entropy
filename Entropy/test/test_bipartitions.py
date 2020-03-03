@@ -33,7 +33,7 @@ class Test(TestCase):
         W = create_w_from_binary(chosen, notchosen(chosen, 3), nonzero_binary).toarray()
         reduced_density_matrix = [[0, 0, 0, 0], [0, 1 / 2, 1 / 4, 1 / 4], [0, 1 / 4, 1 / 4, 0], [0, 1 / 4, 0, 1 / 4]]
         self.assertListEqual(W.dot(W.T).tolist(), reduced_density_matrix)
-        qnotchosen = [3 - 1 for i in notchosen(chosen, 3)]
+        qnotchosen = [3 - 1 - i for i in notchosen(chosen, 3)]
         qmatrix = partial_trace(Statevector(state), qnotchosen).data.real.astype(dtype=float,
                                                                                            copy=False)
         self.assertListEqual(reduced_density_matrix, qmatrix.tolist())

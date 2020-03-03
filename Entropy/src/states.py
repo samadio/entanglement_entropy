@@ -60,8 +60,8 @@ def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: l
     nonzero_idx_binary = [aux.decimal_to_binary(idx, int(log2(state.shape[0]))) for idx in nonzero_idx]
     row = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_idx_binary]
     col = [aux.to_decimal((aux.select_components(i, notchosen))) for i in nonzero_idx_binary]
-    k = int(log2(len(nonzero_idx)))
-    data = np.ones(2 ** k) * (2 ** (- k / 2))
+    number_of_nonzeros = len(nonzero_idx)
+    data = np.ones(number_of_nonzeros) * number_of_nonzeros ** (- 1 / 2)
     return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsr()
 
 
@@ -78,9 +78,8 @@ def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list
     W = matrix_from_state(state, chosen, notchosen)
     eigs = bip.sparsesvd(W, \
                          k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
-    eigs = [i ** 2 for i in eigs]
 
-    return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
+    return - np.sum([i ** 2 * 2 * np.log2(i) for i in eigs if i > 1e-16])
 
 
 def slicing_index(i: int, L: int) -> list:
@@ -96,14 +95,14 @@ def applyIQFT_circuit(L: int, current_state: scipy.sparse.coo_matrix) -> scipy.s
     :param current_state: state to apply IQFT on
     :return: state after IQFT
             """
-    prev_control_register = qt.QuantumRegister(2 * L, 'control')
-    circuit = qt.QuantumCircuit(prev_control_register, qt.QuantumRegister(L, 'target'))
-    circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)), [i for i in range(3 * L)])
-    constructor = IQFT(2 * L)
+    control_register = qt.QuantumRegister(2 * L, 'control')
+    target_register = qt.QuantumRegister(L, 'target')
+    circuit = qt.QuantumCircuit(control_register, target_register)
+    circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)), range(3 * L))
 
-    new_control_register = qt.QuantumRegister(2 * L, 'control')
-    IQFT_circuit = qt.QuantumCircuit(new_control_register, qt.QuantumRegister(L, 'target'))
-    constructor.construct_circuit(mode='circuit', circuit=IQFT_circuit, qubits=new_control_register)
+    constructor = IQFT(control_register)
+    IQFT_circuit = qt.QuantumCircuit(control_register, target_register)
+    constructor.construct_circuit(mode='circuit', circuit=IQFT_circuit, qubits=control_register)
 
     circuit = circuit.combine(IQFT_circuit)
 
