@@ -8,11 +8,11 @@ import states as st
 for sparse in [True, False]:
 
     if sparse:
-        string = "sparse.txt"
+        string = "sparse"
     else:
-        string = "numpy.txt"
+        string = "numpy"
 
-    with open("IQFT_vs_modular_" + string, "a+") as file:
+    with open("IQFT_vs_modular_" + string + ".txt", "a+") as file:
 
         #file = open("IQFT_vs_modular_" + string, "a+")#use the fucking context managers
 
@@ -53,7 +53,7 @@ for sparse in [True, False]:
             print("           modular time: " + str(modular_time), file=file)
             print("           IQFT time: " + str(IQFT_time), file=file)
 
-        print("scipy:", file=file)
+        print(sparse, file=file)
         for i in range(len(numbers)):
             N = numbers[i]
             L = L_list[i]

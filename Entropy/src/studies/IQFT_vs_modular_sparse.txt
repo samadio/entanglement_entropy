@@ -1,15 +1,6 @@
 Number of bipartitions: 100
 qiskit:
       N =15, Y = 13, qubits = 12
-           modular time: 0.8242864608764648
-           IQFT time: 0.569319486618042
-scipy:
-      N =15, Y = 13, qubits = 12
-           modular time: 2.5127930641174316
-           IQFT time: 0.5475196838378906
-Number of bipartitions: 100
-qiskit:
-      N =15, Y = 13, qubits = 12
            modular time: 0.7930350303649902
            IQFT time: 0.5269589424133301
       N =21, Y = 13, qubits = 15
