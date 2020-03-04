@@ -6,6 +6,7 @@ from scipy.sparse.coo import coo_matrix as coo_matrix
 from scipy.sparse.linalg import svds as sparsesvd
 from scipy.special import comb as bin_coeff
 from random import sample as sample
+from numpy.linalg import svd as numpysvd
 
 
 def random_bipartition(sample_space: list, bipartition_size: int) -> list:
@@ -31,7 +32,7 @@ def number_of_bipartitions(size: int) -> int:
     return bin_coeff(size, size / 2, exact=True)
 
 
-def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list) -> coo_matrix:
+def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list, sparse: bool = int):
     """
         Return W s.t. W dot W.T is reduced density matrix according to selected bipartition
 
@@ -46,21 +47,30 @@ def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list) -
     rows = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_binary]
     cols = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
 
-    k = int(log2(len(nonzero_binary)))
-    data = np.ones(2 ** k) * (2 ** (- k / 2))
-    return coo_matrix((data, (rows, cols)), shape=(2 ** len(chosen), 2 ** len(not_chosen))).tocsc()
+    number_of_nonzeros = len(nonzero_binary)
+    norm = number_of_nonzeros ** (- 1 / 2)
+
+    data = np.ones(number_of_nonzeros) * norm
+    if sparse: return coo_matrix((data, (rows, cols)), shape=(2 ** len(chosen), 2 ** len(not_chosen))).tocsc()
+    flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(rows, cols)]
+    W = np.zeros(2 ** (len(chosen) + len(notchosen)))
+    W[flatrow_idx] = norm
+    return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
 
-def entropy(k: int, L: int, chosen: list, nonzero_binary: list) -> float:
+def entropy(k: int, L: int, chosen: list, nonzero_binary: list, sparse: bool = True) -> float:
     """fixed k and bipartition"""
 
     not_chosen = notchosen(chosen, k + L)
 
-    W = create_w_from_binary(chosen, not_chosen, nonzero_binary)
+    W = create_w_from_binary(chosen, not_chosen, nonzero_binary, sparse)
 
-    eigs = sparsesvd(W, k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
-    eigs = eigs * eigs
-    return - np.sum([i * np.log2(i) for i in eigs if i > 1e-16])
+    if sparse:
+        svds = sparsesvd(W, k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
+    else:
+        svds = numpysvd(W, compute_uv=False)
+    eigs = svds * svds
+    return - np.sum([i * np.log2(i) for i in eigs if i > 1e-15])
 
 
 def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter: int = 10000) -> list:
@@ -98,7 +108,6 @@ def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter
             previous_mean = current_mean
 
     return entropies
-
 
 # def entanglement_entropy_forall_k(Y, N, step=200, sparse=True, eigen=False):
 #     if (sparse == True and eigen == True): print("sparse eigen")

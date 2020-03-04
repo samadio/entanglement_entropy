@@ -9,6 +9,7 @@ import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
+from numpy.linalg import svd as numpysvd
 
 
 def construct_state(k, L, row):
@@ -48,7 +49,7 @@ def operator_IQFT_row(n: int, i: int) -> np.array:
         np.exp([omega * i * i for i in range(linear_size)]), dtype=complex)
 
 
-def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list) -> scipy.sparse.coo_matrix:
+def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list, sparse: bool = True):
     """
         Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix
 
@@ -62,11 +63,17 @@ def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: l
     row = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_idx_binary]
     col = [aux.to_decimal((aux.select_components(i, notchosen))) for i in nonzero_idx_binary]
     number_of_nonzeros = len(nonzero_idx)
-    data = np.ones(number_of_nonzeros) * number_of_nonzeros ** (- 1 / 2)
-    return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsr()
+    norm = number_of_nonzeros ** (- 1 / 2)
+    data = np.ones(number_of_nonzeros) * norm
+    if sparse:
+        return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsr()
+    flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(row, col)]
+    W = np.zeros(2 ** (len(chosen) + len(notchosen)))
+    W[flatrow_idx] = norm
+    return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
 
-def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list) -> float:
+def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list, sparse: bool=True) -> float:
     """
         Compute entanglement entropy of state according to chosen bipartition of qubits
 
@@ -76,11 +83,14 @@ def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list
     """
 
     notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
-    W = matrix_from_state(state, chosen, notchosen)
-    eigs = bip.sparsesvd(W, \
-                         k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
+    W = matrix_from_state(state, chosen, notchosen, sparse)
+    if sparse:
+        svds = bip.sparsesvd(W, \
+                             k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
+    else:
+        svds = numpysvd(W, compute_uv=False)
 
-    return - np.sum([i ** 2 * 2 * np.log2(i) for i in eigs if i > 1e-16])
+    return - np.sum([i ** 2 * 2 * np.log2(i) for i in svds if i > 1e-16])
 
 
 def slicing_index(i: int, L: int) -> list:
@@ -159,10 +169,9 @@ def applyIQFT(L: int, current_state: Statevector) -> Statevector:
     constructor = IQFT(control_register)
     IQFT_circuit = qt.QuantumCircuit(control_register, target_register)
     constructor.construct_circuit(mode='circuit', circuit=IQFT_circuit, qubits=control_register)
-    print("costruito circuito")
 
     IQFT_operator = qt.quantum_info.Operator(IQFT_circuit)
-    print("costruito operatore")
+
     del IQFT_circuit
 
     final_state = current_state.evolve(IQFT_operator, range(2 * L))
