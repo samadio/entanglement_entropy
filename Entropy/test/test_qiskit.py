@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from states import *
-from time import time
 
 class Test(TestCase):
 
@@ -33,7 +32,7 @@ class Test(TestCase):
 
         sparse_state = bip.coo_matrix(([1 / 2, 1 / 2, 1 / 2, 1 / 2], (nonzero, [0, 0, 0, 0])), shape=(8, 1)).tocsr()
         chosen = [0, 1]
-        W = matrix_from_state(sparse_state, chosen, bip.notchosen(chosen, 3))
+        W = matrix_from_state_modular(sparse_state, chosen, bip.notchosen(chosen, 3))
         myreduced = W.dot(W.T).toarray().tolist()
         qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), [0]).data. \
             real.astype(dtype=float, copy=False).tolist()
@@ -53,22 +52,10 @@ class Test(TestCase):
         state = np.array(psi)
         chosen = [0, 1]
         notchosen = [2]
-        W = matrix_from_state(sparse_state, chosen, notchosen)
+        W = matrix_from_state_modular(sparse_state, chosen, notchosen)
         myreduced = W.dot(W.T).toarray().tolist()
         qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), [0]).data. \
             real.astype(dtype=float, copy=False).tolist()
         print(myreduced)
         print(qreduced)
         self.assertTrue(False)
-
-    def test_operator_not_doable(self):
-        k = 10
-        L = 5
-        Y = 13
-        N = 21
-        nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
-        state = construct_state(k, L, nonzeros_decimal)
-        qstate = qt.quantum_info.Statevector(state.toarray())
-
-        with self.assertRaises(MemoryError):
-            applyIQFT(L, qstate).data.tolist()

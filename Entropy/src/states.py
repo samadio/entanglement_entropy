@@ -1,55 +1,21 @@
 from itertools import combinations
 from math import log2 as log2
-
-import qiskit as qt
-from qiskit.aqua.components.iqfts import Standard as IQFT
-from qiskit.quantum_info import Statevector
+from IQFT import applyIQFT_circuit
 
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
 from numpy.linalg import svd as numpysvd
+import qiskit as qt
 
 
-def construct_state(k, L, row):
+def construct_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
     data = np.ones(2 ** k) * 2 ** (- k / 2)
     col = np.zeros(2 ** k)
-    return bip.coo_matrix((data, (row, col)), shape=(2 ** (k + L), 1)).tocsr()
+    return bip.coo_matrix((data, (nonzero_elements_decimal_idx, col)), shape=(2 ** (k + L), 1)).tocsr()
 
-
-def operator_IQFT(n: int) -> np.array:
-    """
-        Build and return the IQFT matrix for n qubits
-
-    :param n:   number of qubits the IQFT will be applied to
-    :return:    matrix form of IQFT for n qubits
-    """
-
-    linear_size = 2 ** n
-    omega = - 2 * np.pi * 1j / linear_size
-    return linear_size ** (- 1 / 2) * np.array( \
-        np.exp([[omega * i * k for i in range(linear_size)] for k in range(linear_size)]), dtype=complex)
-
-
-def operator_IQFT_row(n: int, i: int) -> np.array:
-    """
-        Build and return i-th row of IQFT matrix acting on n qubits
-
-    :param n:    number of qubits the IQFT will be applied to
-    :param i:    row of the IQFT operator to construct
-    :return:  i-th row of the IQFT matrix for n qubits
-    """
-
-    linear_size = 2 ** n
-    omega = - 2 * np.pi * 1j * linear_size ** (- 1)
-    if i >= linear_size:
-        raise ValueError("The row {0} does not exist for {1} qubits".format(str(i), str(n)))
-    return linear_size ** (- 1 / 2) * np.array( \
-        np.exp([omega * i * i for i in range(linear_size)]), dtype=complex)
-
-
-def matrix_from_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list, sparse: bool = True):
+def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list, sparse: bool = True):
     """
         Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix
 
@@ -83,7 +49,7 @@ def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list
     """
 
     notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
-    W = matrix_from_state(state, chosen, notchosen, sparse)
+    W = matrix_from_state_modular(state, chosen, notchosen, sparse)
     if sparse:
         svds = bip.sparsesvd(W, \
                              k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
@@ -96,87 +62,6 @@ def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list
 def slicing_index(i: int, L: int) -> list:
     """auxiliary function"""
     return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
-
-
-def applyIQFT_circuit(L: int, current_state: scipy.sparse.coo_matrix) -> np.array:
-    """
-        Apply IQFT on target register of current state and returns final state
-
-    :param L: number of qubits in target register
-    :param current_state: state to apply IQFT on
-    :return: state after IQFT
-            """
-    control_register = qt.QuantumRegister(2 * L, 'control')
-    target_register = qt.QuantumRegister(L, 'target')
-    circuit = qt.QuantumCircuit(control_register, target_register)
-    circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)), range(3 * L))
-
-    constructor = IQFT(control_register)
-    IQFT_circuit = qt.QuantumCircuit(control_register, target_register)
-    constructor.construct_circuit(mode='circuit', circuit=IQFT_circuit, qubits=control_register)
-
-    circuit = circuit.combine(IQFT_circuit)
-
-    backend = qt.Aer.get_backend('statevector_simulator')
-    final_state = qt.execute(circuit, backend).result().get_statevector()
-
-    # return final_state
-    # final_state = []
-    # indexes = [slicing_index(i, L) for i in range(2 ** L)]
-    # for i in range(2 ** (3 * L)):
-    #   if i % (2 ** L) == 0:
-    #       IQFT_row = operator_IQFT_row(2 * L, i / 2 ** L)
-    #   final_state.append(np.dot(IQFT_row, current_state[indexes[i % (2 ** L)], :].toarray()))
-    #    final_state.append(np.dot(IQFT_row,current_state[indexes[i% (2 ** L)]]))
-
-    # operator = operator_IQFT(2 * L)
-    # final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] for j in range(2 ** (2 * L))]) \
-    #               for i in range(2 ** (3 * L))]
-    # final_state = [np.sum([operator[i // 2 ** L][j] * current_state[j * 2 ** L, 0] \
-    #                           if j * 2 ** L in current_state.nonzero()[0] else 0 for j in range(2 ** (2 * L))]) \
-    #               for i in range(2 ** (3 * L))]
-
-    # naive implementation: no memory usage but O (2 ** (5 * L)) computations
-    # omega = exp(2 * np.pi * 1j * 2 ** (- 2 * L))
-    # normalization_constant = 2 ** (- L)
-    # final_state = normalization_constant * np.array([np.sum([(omega ** (i * k)) * current_state[k * 2 ** L, 0] \
-    #                                                             if k * 2 ** L in current_state.nonzero()[0] else 0 for \
-    #                                                         k in range(2 ** (2 * L))]) \
-    #                                                 for i in range(2 ** (3 * L))])
-
-    # probably to be deleted
-    # target_state_sequence = np.array([list(aux.decimal_to_binary((Y ** m) % N, L)) for m in range(2 ** (2 * L))],dtype=np.short)
-    # target_state_sequence = bip.coo_matrix(target_state_sequence).tocsr()
-    # print(target_state_sequence.toarray())
-
-    # final_state = np.zeros(2 ** (3 * L))
-    # for l in range (2 ** (2 * L)):
-
-    return final_state
-
-
-def applyIQFT(L: int, current_state: Statevector) -> Statevector:
-    """
-        Apply IQFT on target register of current state and returns final state
-
-    :param L: number of qubits in target register
-    :param current_state: state to apply IQFT on
-    :return: state after IQFT
-            """
-    control_register = qt.QuantumRegister(2 * L, 'control')
-    target_register = qt.QuantumRegister(L, 'target')
-
-    constructor = IQFT(control_register)
-    IQFT_circuit = qt.QuantumCircuit(control_register, target_register)
-    constructor.construct_circuit(mode='circuit', circuit=IQFT_circuit, qubits=control_register)
-
-    IQFT_operator = qt.quantum_info.Operator(IQFT_circuit)
-
-    del IQFT_circuit
-
-    final_state = current_state.evolve(IQFT_operator, range(2 * L))
-    return final_state
-
 
 def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     """

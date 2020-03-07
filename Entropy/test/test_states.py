@@ -36,7 +36,7 @@ class Test(TestCase):
         for i in range(tries):
             chosen = random_bipartition([i for i in range(k + L)], (k + L) // 2)
             W_binary = bip.create_w_from_binary(chosen, bip.notchosen(chosen, k + L), nonzeros_binary).toarray()
-            W_state = matrix_from_state(state, chosen, notchosen(chosen, k + L)).toarray()
+            W_state = matrix_from_state_modular(state, chosen, notchosen(chosen, k + L)).toarray()
             self.assertListEqual(W_binary.tolist(), W_state.tolist())
 
     def tests_my_entropies_are_equal(self):
@@ -48,12 +48,12 @@ class Test(TestCase):
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         nonzeros_binary = [aux.decimal_to_binary(i, number_of_qubits) for i in nonzeros_decimal]
         state = construct_state(k, L, nonzeros_decimal)
-        tries = 50
+        tries = 20
         for i in range(tries):
             chosen = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
             state_entropy = entanglement_entropy_from_state(state, chosen)
             binary_entropy = binentropy(k, L, chosen, nonzeros_binary)
-            self.assertTrue(np.abs(binary_entropy - state_entropy) < 1e-12)
+            self.assertTrue(np.abs(binary_entropy - state_entropy) < 1e-14)
 
     def test_myentropy_equal_qentropy(self):
         k = 8
@@ -64,7 +64,7 @@ class Test(TestCase):
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         state = construct_state(k, L, nonzeros_decimal)
         qstate = Statevector(state.toarray())
-        tries = 50
+        tries = 30
         for i in range(tries):
             chosen_qubits = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
             notchosen_qubits = notchosen(chosen_qubits, number_of_qubits)
