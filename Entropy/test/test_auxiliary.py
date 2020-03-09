@@ -24,10 +24,13 @@ class AuxiliaryTests(TestCase):
         self.assertEqual(lfy(312), 9)
 
     def test_nonzeros_decimal(self):
-        L = 5
         N = 21
+        L = lfy(N)
         Y = 13
-        self.assertListEqual(nonzeros_decimal(2 * L, N, Y), [m * 2 ** L + ((Y ** m) % N) for m in range(2 ** (2 * L))])
+        k = 2 * L
+        mine = nonzeros_decimal(k, Y, N)
+
+        np.testing.assert_array_equal(mine, [nonzeros_aux(m, L, Y, N) for m in range(2 ** k)])
 
     def test_decimal_to_binary(self):
         nonzero = [1, 3, 5, 7]

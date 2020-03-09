@@ -13,7 +13,7 @@ class Test(TestCase):
         L = 4
         N = 13
         Y = 6
-        state = construct_state(k, L, aux.nonzeros_decimal(k, N, Y)).toarray()
+        state = construct_modular_state(k, L, aux.nonzeros_decimal(k, N, Y)).toarray()
         self.assertAlmostEqual(np.sum([i ** 2 for i in state]), 1, places=13)
 
     def test_construct_state_correct(self):
@@ -21,7 +21,7 @@ class Test(TestCase):
         L = 3
         N = 7
         Y = 2
-        state = construct_state(k, L, aux.nonzeros_decimal(k, N, Y))
+        state = construct_modular_state(k, L, aux.nonzeros_decimal(k, N, Y))
         self.assertListEqual(state.nonzero()[0].tolist(), aux.nonzeros_decimal(k, N, Y))
 
     def test_myW_are_equals(self):
@@ -31,7 +31,7 @@ class Test(TestCase):
         Y = 17
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         nonzeros_binary = [aux.decimal_to_binary(i, k + L) for i in nonzeros_decimal]
-        state = construct_state(k, L, nonzeros_decimal)
+        state = construct_modular_state(k, L, nonzeros_decimal)
         tries = 10
         for i in range(tries):
             chosen = random_bipartition([i for i in range(k + L)], (k + L) // 2)
@@ -47,7 +47,7 @@ class Test(TestCase):
         number_of_qubits = k + L
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         nonzeros_binary = [aux.decimal_to_binary(i, number_of_qubits) for i in nonzeros_decimal]
-        state = construct_state(k, L, nonzeros_decimal)
+        state = construct_modular_state(k, L, nonzeros_decimal)
         tries = 20
         for i in range(tries):
             chosen = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
@@ -62,7 +62,7 @@ class Test(TestCase):
         N = 21
         number_of_qubits = k + L
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
-        state = construct_state(k, L, nonzeros_decimal)
+        state = construct_modular_state(k, L, nonzeros_decimal)
         qstate = Statevector(state.toarray())
         tries = 30
         for i in range(tries):

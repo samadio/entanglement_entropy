@@ -24,31 +24,29 @@ def applyIQFT_circuit(L: int, current_state: coo_matrix) -> np.ndarray:
 
     return final_state
 
+def IQFT_auxiliary(i: int, control_qubits: int, ide, current_state):
+    """ return ((i+1) * 2 ** L) -th elements of IQFT """
+    return tensor(operator_IQFT_row(control_qubits, i), ide)\
+        .dot(current_state)\
+        .flatten()
 
 def apply_IQFT(L: int, current_state: coo_matrix) -> np.ndarray:
     control_qubits = 2 * L
     target_qubits = L
     ide = identity(2 ** target_qubits)
-    '''final_state = []
 
+    result = np.fromfunction(lambda i: IQFT_auxiliary(i, control_qubits, ide, current_state), (2 ** control_qubits,), dtype=complex)
+    return result.flatten()
+    '''more readable version
     for i in range(2 ** (2 * L)):
-        IQFT_row = operator_IQFT_row(2 * L, i)
-        IQFT_operator = tensor(IQFT_row, ide)
-        print(IQFT_row.toarray())
+        IQFT_row = operator_IQFT_row(control_qubits, i)
+        IQFT_operator_global = tensor(IQFT_row, ide)
 
-        temp_res = IQFT_operator.dot(current_state).toarray().flatten()
+        temp_res = IQFT_operator_global.dot(current_state).toarray().flatten()
         final_state.append(temp_res)
-        '''
-
-    linear_size = 2 ** control_qubits
-    omega = - 2 * np.pi * 1j / linear_size
-    TESTIQFT = linear_size ** (- 1 / 2) * np.exp(
-        [[omega * i * k for k in range(linear_size)] for i in range(linear_size)], dtype=complex)
-
-    TESTIQFT = tensor(TESTIQFT, ide)
-    return TESTIQFT.dot(current_state).toarray().flatten()
 
     return np.array(final_state).flatten()
+    '''
 
 
 def operator_IQFT_row(n: int, i: int) -> np.ndarray:

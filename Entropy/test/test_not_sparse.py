@@ -9,7 +9,7 @@ class Test(TestCase):
         N = 21
         L = 5
         nonzero_decimal = aux.nonzeros_decimal(k, N, Y)
-        state = construct_state(k, L, nonzero_decimal)
+        state = construct_modular_state(k, L, nonzero_decimal)
         tries = 50
         for i in range(tries):
             chosen = bip.random_bipartition(range(k + L), (k + L) // 2)

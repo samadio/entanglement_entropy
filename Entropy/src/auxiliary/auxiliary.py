@@ -74,7 +74,11 @@ def lfy(n: int) -> int:
     return int(math.ceil(math.log2(n)))
 
 
-def nonzeros_decimal(k: int, N: int, Y: int) -> list:
+
+def nonzeros_aux(m: int, L: int, Y: int, N: int) -> int:
+    return m * (2 ** L) + ((Y ** m) % N)
+
+def nonzeros_decimal(k: int, Y: int, N: int) -> list:
     """
         Return nonzero indexes of modular exponentiation for Y coprime of N at k-th computational step
     :param k: computational step
@@ -82,4 +86,27 @@ def nonzeros_decimal(k: int, N: int, Y: int) -> list:
     :param Y: coprime of N
     :return: list of indexes of nonzero elements of state
     """
-    return [m * 2 ** lfy(N) + ((Y ** m) % N) for m in range(2 ** k)]
+
+    maxlength = 2 ** k
+
+    def modular_power_gen(max_length: int, Y: int, N: int):
+        """
+            generator iteratively construct nonzero indexes
+        :param max_length: maximum power to generate
+        :param Y: coprime
+        :param N: number to factorize
+        :return: m * 2 ** L + Y** m mod N for m in range(max_length)
+        """
+
+        L = lfy(N)
+        yield 1 #Y ** 0 % N
+        factor = Y % N
+        # m = 1
+        yield 2 ** L + factor
+
+        res = factor
+        for m in range(2, max_length):
+            res = (res * factor) % N
+            yield m * (2 ** L) + res
+
+    return [i for i in modular_power_gen(maxlength, Y, N)]

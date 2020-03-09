@@ -40,22 +40,3 @@ class Test(TestCase):
                     [1 / 4, 0., 1 / 4, 1 / 4]]
         self.assertListEqual(myreduced, expected)
         self.assertListEqual(qreduced, expected)
-
-    def test_W_coefficients_not_1(self):
-        # psi = (2 001 + 010 + 101 ) / sqrt(6)
-        norm = 1 / np.sqrt(6)
-        data = [2 * norm, 1 * norm, 1 * norm]
-        row = [1, 2, 5]
-        col = [0, 0, 0]
-        sparse_state = bip.coo_matrix((data, (row, col)), shape=(8, 1)).tocsr()
-        psi = [0, 2 * norm, norm, 0, 0, norm, 0, 0]
-        state = np.array(psi)
-        chosen = [0, 1]
-        notchosen = [2]
-        W = matrix_from_state_modular(sparse_state, chosen, notchosen)
-        myreduced = W.dot(W.T).toarray().tolist()
-        qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), [0]).data. \
-            real.astype(dtype=float, copy=False).tolist()
-        print(myreduced)
-        print(qreduced)
-        self.assertTrue(False)

@@ -1,16 +1,15 @@
 from itertools import combinations
 from math import log2 as log2
-from IQFT import applyIQFT_circuit
+from IQFT import *
 
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
 from numpy.linalg import svd as numpysvd
-import qiskit as qt
 
 
-def construct_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
+def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
     data = np.ones(2 ** k) * 2 ** (- k / 2)
     col = np.zeros(2 ** k)
     return bip.coo_matrix((data, (nonzero_elements_decimal_idx, col)), shape=(2 ** (k + L), 1)).tocsr()
@@ -88,7 +87,7 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
 
     ''' Modular exponentiation  '''
     for k in range(1, 2 * L + 1):
-        current_state = construct_state(k, L, nonzeros_decimal[:2 ** k])
+        current_state = construct_modular_state(k, L, nonzeros_decimal[:2 ** k])
         considered_qubits = range(k + L)
         bipartition_size = (k + L) // 2
         ### TO BE DELETED:

@@ -1,0 +1,45 @@
+nqubits = 12
+    Inizialization time: 0.0008709430694580078
+    Creating global operator for single row time: 0.0007822513580322266
+    dot product time: 0.0005168914794921875
+nqubits = 15
+    Inizialization time: 0.004146575927734375
+    Creating global operator for single row time: 0.002068758010864258
+    dot product time: 0.0012562274932861328
+nqubits = 18
+    Inizialization time: 0.09906744956970215
+    Creating global operator for single row time: 0.011525869369506836
+    dot product time: 0.010633230209350586
+nqubits = 21
+    Inizialization time: 3.1569104194641113
+    Creating global operator for single row time: 0.06929135322570801
+    dot product time: 0.12278604507446289
+nqubits = 24
+    Inizialization time: 111.07694411277771
+    Creating global operator for single row time: 0.5103261470794678
+    dot product time: 1.4958038330078125
+
+###AFTER MAKING NONZERO ITERATIVE
+
+nqubits = 12
+    Inizialization time: 0.0005848407745361328
+    Creating global operator for single row time: 0.0008668899536132812
+    dot product time: 0.0005571842193603516
+nqubits = 15
+    Inizialization time: 0.0008487701416015625
+    Creating global operator for single row time: 0.0022635459899902344
+    dot product time: 0.0013549327850341797
+nqubits = 18
+    Inizialization time: 0.0054318904876708984
+    Creating global operator for single row time: 0.012408018112182617
+    dot product time: 0.010816574096679688
+nqubits = 21
+    Inizialization time: 0.01585865020751953
+    Creating global operator for single row time: 0.07021236419677734
+    dot product time: 0.11931872367858887
+nqubits = 24
+    Inizialization time: 0.08516430854797363
+    Creating global operator for single row time: 0.5177273750305176
+    dot product time: 1.4922845363616943
+
+##from dot to sum in IQFT

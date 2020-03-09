@@ -14,8 +14,6 @@ for sparse in [True, False]:
 
     with open("IQFT_vs_modular_" + string + ".txt", "a+") as file:
 
-        #file = open("IQFT_vs_modular_" + string, "a+")#use the fucking context managers
-
         Y = 13
         numbers = [15, 21, 33, 66]
         L_list = [lfy(N) for N in numbers]
@@ -36,7 +34,7 @@ for sparse in [True, False]:
             modular_time = time()
 
             for k in range(1, 2 * L + 1):
-                current_state = qinfo.Statevector(st.construct_state(k, L, nonzeros_decimal[i][: 2 ** k]).toarray())
+                current_state = qinfo.Statevector(st.construct_modular_state(k, L, nonzeros_decimal[i][: 2 ** k]).toarray())
 
                 results = [qinfo.entropy(qinfo.partial_trace(current_state, chosen)) for chosen in
                            sampled_bipartitions[i][k - 1]]
@@ -45,7 +43,7 @@ for sparse in [True, False]:
 
             IQFT_time = time()
 
-            final_state = st.applyIQFT_circuit(L, st.construct_state(2 * L, L, nonzeros_decimal[i]))
+            final_state = st.applyIQFT_circuit(L, st.construct_modular_state(2 * L, L, nonzeros_decimal[i]))
             results = [qinfo.entropy(qinfo.partial_trace(final_state, chosen)) for chosen in sampled_bipartitions[i][2 * L - 1]]
             IQFT_time = time() - IQFT_time
 
@@ -60,14 +58,14 @@ for sparse in [True, False]:
 
             modular_time = time()
             for k in range(1, 2 * L + 1):
-                current_state = st.construct_state(k, L, nonzeros_decimal[i][: 2 ** k])
+                current_state = st.construct_modular_state(k, L, nonzeros_decimal[i][: 2 ** k])
                 results = [st.entanglement_entropy_from_state(current_state, chosen, sparse) for chosen in sampled_bipartitions[i][k - 1]]
 
             modular_time = time() - modular_time
 
             IQFT_time = time()
 
-            final_state = st.applyIQFT_circuit(L, st.construct_state(2 * L, L, nonzeros_decimal[i]))
+            final_state = st.applyIQFT_circuit(L, st.construct_modular_state(2 * L, L, nonzeros_decimal[i]))
 
             results = [qinfo.entropy(qinfo.partial_trace(final_state, chosen)) for chosen in sampled_bipartitions[i][2 * L - 1]]
 
