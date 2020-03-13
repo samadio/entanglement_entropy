@@ -32,7 +32,7 @@ def number_of_bipartitions(size: int) -> int:
     return bin_coeff(size, size / 2, exact=True)
 
 
-def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list, sparse: bool = int):
+def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list, sparse: bool = True):
     """
         Return W s.t. W dot W.T is reduced density matrix according to selected bipartition
 

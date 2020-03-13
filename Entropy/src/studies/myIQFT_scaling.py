@@ -2,7 +2,7 @@ from states import *
 from time import time
 
 with open("computing IQFT.txt", "a+") as file:
-    numbers = [15, 22, 35, 67, 129]
+    numbers = [15, 22, 35, 67]#, 129]
     for N in numbers:
         L = aux.lfy(N)
         Y = 13
@@ -10,21 +10,30 @@ with open("computing IQFT.txt", "a+") as file:
         row = 6
 
         print("nqubits = " + str(3 * L), file=file)
-        start_time = time()
         nonzeros = aux.nonzeros_decimal(k, N, Y)
         state = construct_modular_state(k, L, nonzeros)
-        print("    Inizialization time: " + str(time() - start_time), file=file)
 
         start_time = time()
         ide = identity(2 ** L)
-        IQFT_row = operator_IQFT_row(2 * L, row)
-        IQFT_operator_global = tensor(IQFT_row, ide)
-        print("    Creating global operator for single row time: " + str(time() - start_time), file=file)
+        IQFT_op = coo_matrix(operator_IQFT(2 * L))
+        IQFT_operator_global = tensor(ide, IQFT_op, format='csr')
+        print("    Creating global operator time: " + str(time() - start_time), file=file)
 
         start_time = time()
-        np.dot(IQFT_operator_global, state)
+        test2 = IQFT_operator_global.dot(state)
 
-        print("    dot product time: " + str(time() - start_time), file=file)
-
-
-## from dotproduct to sum
+        '''start_time = time()
+        nonzeros = np.array(nonzeros, dtype=np.int64)
+        state = state.toarray()
+        IQFT_row = operator_IQFT_row(2 * L, row)
+        test1 = []
+        for i in range(2 ** L):
+            relevant = nonzeros[(nonzeros % ((2 ** L) + i)) == 0] / (i + 2 ** L)
+            #relevant is empty
+            #if max(relevant.shape) == 0:
+            #    test1.append(0)
+            #    continue
+            test1.append(np.sum(IQFT_row[relevant.astype(np.int64)]) * len(nonzeros) ** (- 1 / 2))
+        np.testing.assert_array_almost_equal(test1, test2.toarray().reshape((2 ** L,)), decimal=12)
+        print(str(N))'''
+        print("    dot sparse time: " + str(time() - start_time), file=file)

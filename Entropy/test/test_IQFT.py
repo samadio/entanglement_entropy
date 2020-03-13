@@ -23,36 +23,30 @@ class Test(TestCase):
         np.testing.assert_array_almost_equal(1 / 2 * np.array([1, -1j, -1, 1j]), IQFT_row)
 
     def test_qiskit_IQFT_correct(self):
-        control_state = np.ones(4) / 2
-        target_state = np.array([1, 0])  # zero state
-        state = np.kron(control_state, target_state).reshape(8, 1)
-        state = coo_matrix(state, shape=(8, 1))
-        qfinal = applyIQFT_circuit(1, state).round(decimals=6)
+        N = 21
+        Y = 13
+        L = 5
+        k = 2 * L
+        nonzeros = aux.nonzeros_decimal(k, Y, N)
+        state = construct_modular_state(k, L, nonzeros)
+        qfinal = applyIQFT_circuit(L, state)
 
-        expected_control_state = np.array([1, 0, 0, 0])
-        expected = np.kron(expected_control_state, target_state)
+        IQFT_matrix_2L = coo_matrix(operator_IQFT(2 * L))
+        operator = scipy.sparse.kron(IQFT_matrix_2L, scipy.eye(2 ** L))
+        print(operator.shape)
+        print("Percentage of nonzeros in operator:")
+        print(len(operator.nonzero()[0]) == 2 ** (5 * L))
+        exact = operator.dot(state)
+        print("Percentage of nonzeros in state:")
+        print(100 * len(exact.nonzero()[0]) / 2 ** (3 * L))
+        exact = exact.toarray().reshape(2 ** (3 * L))
 
-        np.testing.assert_array_almost_equal(qfinal, expected)
+        exact[np.abs(exact) < 1e-14] = 0
+        qfinal[np.abs(qfinal) < 1e-14] = 0
+        np.testing.assert_array_almost_equal(exact, qfinal)
 
-    def test_myQFT_correct(self):
-        nqubits = 2
-        linear_size = 2 ** nqubits
-        omega = 2 * np.pi * 1j / linear_size
+    def test_myIQFT_operator_correct(self):
+        nqubits = 4
         benchIQFT = qft(nqubits)
-        myIQFT = linear_size ** (- 1 / 2) * np.exp(
-            [[omega * i * k for k in range(linear_size)] for i in range(linear_size)], dtype=complex)
-        np.testing.assert_array_almost_equal(benchIQFT, myIQFT)
-
-    def test_IQFT_global_correct(self):
-        target_qubits = 1
-        contr_qubits = 2 * target_qubits
-        linear_size = 2 ** contr_qubits
-        omega = 2 * np.pi * 1j / linear_size
-        benchIQFT = tensor(qft(contr_qubits), qeye(2 ** target_qubits))
-        print(benchIQFT.shape)
-
-        myIQFT = linear_size ** (- 1 / 2) * np.exp(
-            [[omega * i * k for k in range(linear_size)] for i in range(linear_size)], dtype=complex)
-
-        myIQFT = np.kron(myIQFT, np.eye(2 ** target_qubits))
+        myIQFT = operator_IQFT(nqubits, False)
         np.testing.assert_array_almost_equal(benchIQFT, myIQFT)

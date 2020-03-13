@@ -1,45 +1,18 @@
+using the whole operator:
 nqubits = 12
-    Inizialization time: 0.0008709430694580078
-    Creating global operator for single row time: 0.0007822513580322266
-    dot product time: 0.0005168914794921875
+    Inizialization time: 0.0006346702575683594
+    Creating global operator time: 0.06398367881774902
+    dot sparse time: 0.024698495864868164
 nqubits = 15
-    Inizialization time: 0.004146575927734375
-    Creating global operator for single row time: 0.002068758010864258
-    dot product time: 0.0012562274932861328
+    Inizialization time: 0.0008571147918701172
+    Creating global operator time: 1.487551212310791
+    dot sparse time: 1.281001329421997
 nqubits = 18
-    Inizialization time: 0.09906744956970215
-    Creating global operator for single row time: 0.011525869369506836
-    dot product time: 0.010633230209350586
-nqubits = 21
-    Inizialization time: 3.1569104194641113
-    Creating global operator for single row time: 0.06929135322570801
-    dot product time: 0.12278604507446289
-nqubits = 24
-    Inizialization time: 111.07694411277771
-    Creating global operator for single row time: 0.5103261470794678
-    dot product time: 1.4958038330078125
+    Inizialization time: 0.0038878917694091797
 
-###AFTER MAKING NONZERO ITERATIVE
+    IQFT_operator_global = tensor(IQFT_op, ide, format='csr'):
+        MemoryError: Unable to allocate array with shape (1073741824,) and data type complex128
 
-nqubits = 12
-    Inizialization time: 0.0005848407745361328
-    Creating global operator for single row time: 0.0008668899536132812
-    dot product time: 0.0005571842193603516
-nqubits = 15
-    Inizialization time: 0.0008487701416015625
-    Creating global operator for single row time: 0.0022635459899902344
-    dot product time: 0.0013549327850341797
-nqubits = 18
-    Inizialization time: 0.0054318904876708984
-    Creating global operator for single row time: 0.012408018112182617
-    dot product time: 0.010816574096679688
-nqubits = 21
-    Inizialization time: 0.01585865020751953
-    Creating global operator for single row time: 0.07021236419677734
-    dot product time: 0.11931872367858887
-nqubits = 24
-    Inizialization time: 0.08516430854797363
-    Creating global operator for single row time: 0.5177273750305176
-    dot product time: 1.4922845363616943
-
-##from dot to sum in IQFT
+        can it create an identity of this dimension? Does it allocate the whole array beforehand and then convert?
+        Ni: L= 6: it can allocate an identity of linear_dimension 2 ** (3*L), but here we have 2 ** (5 * L) nonzero elements, of which actually
+            u have only circa 2 ** (4L-1) distinct ones. Inside it uses a .repeat() so it copies a lot and ends up in 2 ** 5L, not feasible
