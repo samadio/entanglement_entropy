@@ -1,19 +1,19 @@
 from states import *
 from time import time
+from qiskit.aqua.algorithms import Shor
 
 with open("computing IQFT.txt", "a+") as file:
-    numbers = [15, 22, 35, 67, 129]#, 261]
+    numbers = [15, 27, 35, 67, 129]  # , 261]
     for N in numbers:
+        print(N)
         L = aux.lfy(N)
         Y = 13
         k = 2 * L
         row = 6
 
         print("nqubits = " + str(3 * L), file=file)
-        nonzeros = aux.nonzeros_decimal(k, N, Y)
-        state = construct_modular_state(k, L, nonzeros)
-
-        print("doing circuit")
+        # nonzeros = aux.nonzeros_decimal(k, N, Y)
+        # state = construct_modular_state(k, L, nonzeros)
 
         start_time = time()
         '''
@@ -40,6 +40,9 @@ with open("computing IQFT.txt", "a+") as file:
         np.testing.assert_array_almost_equal(test1, test2.toarray().reshape((2 ** L,)), decimal=12)
         print(str(N))'''
 
-        final_state = applyIQFT_circuit(L, state.toarray())
+        # final_state = applyIQFT_circuit(L, state.toarray())
 
-        print("    apply_IQFT time: " + str(time() - start_time), file=file)
+        backend = qt.Aer.get_backend('statevector_simulator')
+        shor_circ = Shor(N, Y).run(backend)
+
+        print("    shor time: " + str(time() - start_time), file=file)
