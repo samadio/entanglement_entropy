@@ -17,4 +17,20 @@ nqubits = 18
         Ni: L= 6: it can allocate an identity of linear_dimension 2 ** (3*L), but here we have 2 ** (5 * L) nonzero elements, of which actually
             u have only circa 2 ** (4L-1) distinct ones. Inside it uses a .repeat() so it copies a lot and ends up in 2 ** 5L, not feasible
 
-IQFT with factorization
+IQFT circuit:
+    first try: L = 9: Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
+                    meaning: C++ runs out of memory, and still I was waiting 10 minutes for a single IQFT
+
+    nqubits = 12
+        apply_IQFT time: 0.19405198097229004
+    nqubits = 15
+        apply_IQFT time: 0.8901138305664062
+    nqubits = 18
+        apply_IQFT time: 4.634650945663452
+    nqubits = 21
+        apply_IQFT time: 35.29793071746826
+    nqubits = 24
+        apply_IQFT time: 283.24886298179626
+    L = 10 :
+        expected time: 283 * 4/30 minutes: approx 40 min, to be done only once. doable IF memory
+

@@ -27,7 +27,6 @@ def applyIQFT_circuit(L: int, current_state: np.ndarray) -> np.ndarray:
 
     circuit = QuantumCircuit(3 * L)
     circuit.initialize(current_state.reshape(2 ** (3 * L)), circuit.qubits)
-
     circuit = QFT.construct_circuit(circuit=circuit, qubits=circuit.qubits[L:3 * L], inverse=True, do_swaps=True)
 
     backend = qt.Aer.get_backend('statevector_simulator')
