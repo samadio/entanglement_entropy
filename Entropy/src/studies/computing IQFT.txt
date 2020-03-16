@@ -35,6 +35,7 @@ IQFT circuit:
         expected time: 283 * 4/30 minutes: approx 40 min, to be done only once. doable IF memory
 
 SHOR by qiskit:
+
     by constructing circuit and execute backend: after 1h on 3.5 cores, still nothing
     by using run method of class Shor on statevector_simulator: (qasm already 33 on 12 qubits and done for noisy)
 nqubits = 12
@@ -43,5 +44,4 @@ nqubits = 12
         rho = np.outer(statevector, np.conj(statevector))
     creando cosi una matrice densa di dimensione (2 ** nqubits, 2 ** nqubits)
     MemoryError: Unable to allocate array with shape (262144, 262144) and data type complex128
-                                                      2 ** 18, quindi usano ??
-            range(2 * self._n, 4 * self._n + 2)
+                                                      2 ** 18, quindi usano 18 qubits per target di 4...ok
