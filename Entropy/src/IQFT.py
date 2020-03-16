@@ -1,12 +1,22 @@
+import qiskit as qt
 from scipy.sparse import coo_matrix, identity
 from scipy.sparse import kron as tensor
-import numpy as np
+from auxiliary.bipartitions import np
 
-import qiskit as qt
+from auxiliary import auxiliary as aux
+from qiskit.execute import execute
+from qiskit.circuit.quantumcircuit import QuantumCircuit
 from qiskit.aqua.circuits import FourierTransformCircuits as QFT
 
 
-def applyIQFT_circuit(L: int, current_state: coo_matrix) -> np.ndarray:
+def invert_qubits_state(state: coo_matrix, length: int) -> coo_matrix:
+    new_idx = range(2 ** length)
+    result = np.array(list(map(lambda i: aux.to_decimal(aux.decimal_to_binary(i, length)[::-1]), new_idx)),
+                      dtype=np.int64)
+    return state.toarray().reshape((2 ** length), )[result]
+
+
+def applyIQFT_circuit(L: int, current_state: np.ndarray) -> np.ndarray:
     """
         Apply IQFT on control register of current state and returns final state
 
@@ -14,38 +24,30 @@ def applyIQFT_circuit(L: int, current_state: coo_matrix) -> np.ndarray:
     :param current_state: state to apply IQFT on
     :return: state after IQFT
     """
-    circuit = qt.QuantumCircuit(3 * L)
-    circuit.initialize(current_state.toarray().reshape(2 ** (3 * L)), [i for i in reversed(circuit.qubits)])
 
-    QFT.construct_circuit(circuit=circuit, qubits=circuit.qubits[:2 * L], inverse=True, do_swaps=True)
+    circuit = QuantumCircuit(3 * L)
+    circuit.initialize(current_state.reshape(2 ** (3 * L)), circuit.qubits)
+
+    circuit = QFT.construct_circuit(circuit=circuit, qubits=circuit.qubits[L:3 * L], inverse=True, do_swaps=True)
 
     backend = qt.Aer.get_backend('statevector_simulator')
-    final_state = qt.execute(circuit, backend, shots=1).result().get_statevector()
+    final_state = execute(circuit, backend, shots=1).result().get_statevector()
 
     return final_state
 
 
 def apply_IQFT_huge(L: int, current_state: coo_matrix) -> np.ndarray:
+    """
+           Apply IQFT on control register of current state and returns final state
+
+       :param L: number of qubits in target register
+       :param current_state: state to apply IQFT on
+       :return: state after IQFT
+    """
     control_qubits = 2 * L
     target_qubits = L
 
     return tensor(operator_IQFT(control_qubits), identity(target_qubits)).dot(current_state)
-
-    '''ide = identity(2 ** target_qubits)
-
-    result = np.fromfunction(lambda i: IQFT_auxiliary(i, control_qubits, ide, current_state), (2 ** control_qubits,),
-                             dtype=complex)
-    return result.flatten()
-    more readable version
-    for i in range(2 ** (2 * L)):
-        IQFT_row = operator_IQFT_row(control_qubits, i)
-        IQFT_operator_global = tensor(IQFT_row, ide)
-
-        temp_res = IQFT_operator_global.dot(current_state).toarray().flatten()
-        final_state.append(temp_res)
-
-    return np.array(final_state).flatten()
-    '''
 
 
 def operator_IQFT_row(n: int, i: int, inverse: bool = True) -> np.ndarray:

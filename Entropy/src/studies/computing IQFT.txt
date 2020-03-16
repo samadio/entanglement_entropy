@@ -16,3 +16,5 @@ nqubits = 18
         can it create an identity of this dimension? Does it allocate the whole array beforehand and then convert?
         Ni: L= 6: it can allocate an identity of linear_dimension 2 ** (3*L), but here we have 2 ** (5 * L) nonzero elements, of which actually
             u have only circa 2 ** (4L-1) distinct ones. Inside it uses a .repeat() so it copies a lot and ends up in 2 ** 5L, not feasible
+
+IQFT with factorization
