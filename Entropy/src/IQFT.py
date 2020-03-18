@@ -9,16 +9,22 @@ from qiskit.circuit.quantumcircuit import QuantumCircuit
 from qiskit.aqua.circuits import FourierTransformCircuits as QFT
 
 
-def invert_qubits_state(state: coo_matrix, length: int) -> coo_matrix:
-    new_idx = range(2 ** length)
-    result = np.array(list(map(lambda i: aux.to_decimal(aux.decimal_to_binary(i, length)[::-1]), new_idx)),
-                      dtype=np.int64)
-    return state.toarray().reshape((2 ** length), )[result]
+def apply_IQFT(L: int, current_state: coo_matrix) -> np.ndarray:
+    """
+        apply IQFT to control target using different methods depending on number of qubits
+    :param L: number of qubits in target register
+    :param current_state: current_state of the system
+    :return: state after IQFT on control register
+    """
+    if L < 6:
+        return applyIQFT_huge(L, current_state).toarray().reshape(2 ** (3 * L))
+    else:
+        return applyIQFT_circuit(L, current_state.toarray().reshape(2 ** (3 * L)))
 
 
 def applyIQFT_circuit(L: int, current_state: np.ndarray) -> np.ndarray:
     """
-        Apply IQFT on control register of current state and returns final state
+        Apply IQFT on control register of current state and returns final state using qiskit circuit
 
     :param L: number of qubits in target register
     :param current_state: state to apply IQFT on
@@ -35,9 +41,9 @@ def applyIQFT_circuit(L: int, current_state: np.ndarray) -> np.ndarray:
     return final_state
 
 
-def apply_IQFT_huge(L: int, current_state: coo_matrix) -> np.ndarray:
+def applyIQFT_huge(L: int, current_state: coo_matrix) -> np.ndarray:
     """
-           Apply IQFT on control register of current state and returns final state
+           Apply IQFT on control register of current state and returns final state using tensor operator
 
        :param L: number of qubits in target register
        :param current_state: state to apply IQFT on
@@ -46,7 +52,7 @@ def apply_IQFT_huge(L: int, current_state: coo_matrix) -> np.ndarray:
     control_qubits = 2 * L
     target_qubits = L
 
-    return tensor(operator_IQFT(control_qubits), identity(target_qubits)).dot(current_state)
+    return tensor(operator_IQFT(control_qubits), identity(2 ** target_qubits)).dot(current_state)
 
 
 def operator_IQFT_row(n: int, i: int, inverse: bool = True) -> np.ndarray:
@@ -69,6 +75,8 @@ def operator_IQFT_row(n: int, i: int, inverse: bool = True) -> np.ndarray:
     return linear_size ** (- 1 / 2) * np.array(
         np.exp([omega * i * k for k in range(linear_size)]), dtype=complex)
 
+# --------------------------------------------------------------------------------------------------------
+#from here on, they've not been used
 
 def operator_IQFT(n: int, inverse: bool = True) -> np.ndarray:
     """
@@ -79,3 +87,10 @@ def operator_IQFT(n: int, inverse: bool = True) -> np.ndarray:
     """
 
     return np.array([operator_IQFT_row(n, i, inverse) for i in range(2 ** n)])
+
+
+def invert_qubits_state(state: coo_matrix, length: int) -> coo_matrix:
+    new_idx = range(2 ** length)
+    result = np.array(list(map(lambda i: aux.to_decimal(aux.decimal_to_binary(i, length)[::-1]), new_idx)),
+                      dtype=np.int64)
+    return state.toarray().reshape((2 ** length), )[result]

@@ -25,3 +25,11 @@ numpy:
       N =66, Y = 13, qubits = 21
            modular time: 182.14510941505432
            IQFT time: 1220.3224728107452
+qiskit:
+      N =129, Y = 13, qubits = 24
+           modular time: 10646.41007566452
+           IQFT time: 5683.382933139801
+numpy
+      N =129, Y = 13, qubits = 24
+           modular time: 5362.631452083588
+           IQFT time: 5731.074975967407

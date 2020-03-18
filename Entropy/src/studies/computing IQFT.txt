@@ -37,7 +37,7 @@ IQFT circuit:
 SHOR by qiskit:
 
     by constructing circuit and execute backend: after 1h on 3.5 cores, still nothing
-    by using run method of class Shor on statevector_simulator: (qasm already 33 on 12 qubits and done for noisy)
+    by using run method of class Shor on statevector_simulator: (qasm already 33s on 12 qubits and designed for noisy)
 nqubits = 12
     L = 4, N = 15
     i geni come prima cosa fanno
