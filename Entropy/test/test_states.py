@@ -71,3 +71,8 @@ class Test(TestCase):
             myentropy = entanglement_entropy_from_state(state, chosen_qubits)
             qentropy = entropy(partial_trace(qstate, [number_of_qubits - 1 - i for i in notchosen_qubits]))
             self.assertTrue(np.abs(myentropy - qentropy) < 1e-12)
+
+    def test_max_memory(self):
+        for L in range(5,13):
+            state = np.ones(2 ** (3 * L + 1))
+            print(str(L) + "it's fine")
