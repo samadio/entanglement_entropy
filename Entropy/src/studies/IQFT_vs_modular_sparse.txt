@@ -25,6 +25,7 @@ scipy:
       N =66, Y = 13, qubits = 21
            modular time: 788.7104079723358
            IQFT time: 1202.8296723365784
+
 qiskit:
       N =129, Y = 13, qubits = 24
            modular time: 11227.123878002167

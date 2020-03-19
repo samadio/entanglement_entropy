@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from states import *
+from src.states import *
 
 class Test(TestCase):
 

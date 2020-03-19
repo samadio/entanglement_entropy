@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from auxiliary.bipartitions import *
+from src.auxiliary.bipartitions import *
 import numpy as np
 from qiskit.quantum_info import DensityMatrix, Statevector, partial_trace
 from qiskit.quantum_info import entropy as qentropy

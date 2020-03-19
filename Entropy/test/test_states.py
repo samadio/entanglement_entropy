@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from auxiliary.bipartitions import random_bipartition, notchosen
-from auxiliary.bipartitions import entropy as binentropy
-from states import *
+from src.auxiliary.bipartitions import random_bipartition, notchosen
+from src.auxiliary.bipartitions import entropy as binentropy
+from src.states import *
 from qiskit.quantum_info import partial_trace, entropy, Statevector
 
 

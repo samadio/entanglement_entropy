@@ -1,11 +1,11 @@
 from itertools import combinations
 from math import log2 as log2
-from IQFT import *
+from src.IQFT import *
 
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
-from auxiliary import auxiliary as aux, bipartitions as bip
+from src.auxiliary import auxiliary as aux, bipartitions as bip
 from numpy.linalg import svd as numpysvd
 
 

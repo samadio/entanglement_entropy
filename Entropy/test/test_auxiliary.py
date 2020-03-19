@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from auxiliary.auxiliary import *
+from src.auxiliary.auxiliary import *
 
 
 class AuxiliaryTests(TestCase):
