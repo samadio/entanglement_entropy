@@ -79,7 +79,6 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     L = aux.lfy(N)
     # print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
 
-    # TBI using period and control it's right
     nonzeros_decimal = aux.nonzeros_decimal(2 * L, N, Y)
     # print("nonzeros done")
     results = []

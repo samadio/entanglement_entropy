@@ -52,3 +52,5 @@ nqubits = 12
  other pc: 16 GB RAM. Let's see if L=9 doable.
 nqubits = 27
     L=9 circuit time: 3261.6420543193817
+nqubits = 27
+    L=9 circuit time: 3315.919512271881
