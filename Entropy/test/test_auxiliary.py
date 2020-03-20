@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from auxiliary.auxiliary import *
+from src.auxiliary.auxiliary import *
 
 
 class AuxiliaryTests(TestCase):
@@ -30,7 +30,7 @@ class AuxiliaryTests(TestCase):
         k = 2 * L
         mine = nonzeros_decimal(k, Y, N)
 
-        np.testing.assert_array_equal(mine, [nonzeros_aux(m, L, Y, N) for m in range(2 ** k)])
+        np.testing.assert_array_equal(mine, [__nonzeros_aux_test__(m, L, Y, N) for m in range(2 ** k)])
 
     def test_decimal_to_binary(self):
         nonzero = [1, 3, 5, 7]

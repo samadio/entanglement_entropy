@@ -1,11 +1,11 @@
 from itertools import combinations
 from math import log2 as log2
-from IQFT import *
+from src.IQFT import *
 
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
-from auxiliary import auxiliary as aux, bipartitions as bip
+from src.auxiliary import auxiliary as aux, bipartitions as bip
 from numpy.linalg import svd as numpysvd
 
 
@@ -79,7 +79,6 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     L = aux.lfy(N)
     # print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
 
-    # TBI using period and control it's right
     nonzeros_decimal = aux.nonzeros_decimal(2 * L, N, Y)
     # print("nonzeros done")
     results = []

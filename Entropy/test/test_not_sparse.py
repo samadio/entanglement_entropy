@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from states import *
+from src.states import *
 
 class Test(TestCase):
     def test_modular_W_sparse_equals_not_sparse(self):

@@ -19,7 +19,7 @@ nqubits = 18
 
 IQFT circuit:
     first try: L = 9: Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
-                    meaning: C++ runs out of memory, and still I was waiting 10 minutes for a single IQFT
+                    meaning: C++ runs out of memory, and still I was waiting 10 minutes for IQFT only
 
     nqubits = 12
         apply_IQFT time: 0.19405198097229004
@@ -32,7 +32,7 @@ IQFT circuit:
     nqubits = 24
         apply_IQFT time: 283.24886298179626
     nqubits = 27: L = 9 :
-        expected time: 283 * 4/30 minutes: approx 40 min, to be done only once. doable IF memory
+        expected time: 283 * 8 seconds: approx 40 min, to be done only once. doable IF memory
 
 SHOR by qiskit:
 
@@ -45,3 +45,12 @@ nqubits = 12
     creando cosi una matrice densa di dimensione (2 ** nqubits, 2 ** nqubits)
     MemoryError: Unable to allocate array with shape (262144, 262144) and data type complex128
                                                       2 ** 18, quindi usano 18 qubits per target di 4...ok
+
+
+
+ ------------------------------------------------------------------------------------------------------------------
+ other pc: 16 GB RAM. Let's see if L=9 doable.
+nqubits = 27
+    L=9 circuit time: 3261.6420543193817
+nqubits = 27
+    L=9 circuit time: 3315.919512271881
