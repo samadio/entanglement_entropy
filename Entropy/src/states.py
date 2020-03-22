@@ -14,13 +14,15 @@ def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) 
     col = np.zeros(2 ** k)
     return bip.coo_matrix((data, (nonzero_elements_decimal_idx, col)), shape=(2 ** (k + L), 1)).tocsr()
 
+
 def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list, sparse: bool = True):
     """
-        Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix
+        Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix for modular exponentiation state
 
     :param state: state of the system
     :param chosen: observable qubits
     :param notchosen: qubits to trace away
+    :param sparse: if True, W is scipy.sparse, otherwise numpy.ndarray
     :return:  W
     """
     nonzero_idx, _ = state.nonzero()
@@ -38,29 +40,61 @@ def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notc
     return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
 
-def entanglement_entropy_from_state(state: scipy.sparse.coo_matrix, chosen: list, sparse: bool=True) -> float:
+#matrix from states can be reunited if I decide to store the state directly as np.ndarray
+def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list):
+    """
+        Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix for state after IQFT
+
+    :param state: state of the system
+    :param chosen: observable qubits
+    :param notchosen: qubits to trace away
+    :return:  W
+    """
+
+    nonzero_idx = np.flatnonzero(state)
+    qubits = int(log2(len(state)))
+
+    nonzero_idx_binary = [aux.decimal_to_binary(idx, qubits) for idx in nonzero_idx]
+    row = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_idx_binary]
+    col = [aux.to_decimal((aux.select_components(i, notchosen))) for i in nonzero_idx_binary]
+
+    flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(row, col)]
+
+    #del row, col, nonzero_idx_binary
+    W = np.zeros(len(state))
+    for new_idx, old_idx in zip(flatrow_idx, nonzero_idx):
+        W[new_idx] = state[old_idx]
+    #del nonzero_idx
+    return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
+
+
+# -----------------------------------------------------------------
+# unused functions
+def slicing_index(i: int, L: int) -> list:
+    """auxiliary function"""
+    return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
+
+
+def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) -> float:
     """
         Compute entanglement entropy of state according to chosen bipartition of qubits
 
-    :param state:   array representing state of the system of qubits
+    :param state:   array representing state of the system of qubits, can be scipy.sparse or numpy
     :param chosen:  selected qubits
     :return: S
     """
-
-    notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
-    W = matrix_from_state_modular(state, chosen, notchosen, sparse)
     if sparse:
+        notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
+        W = matrix_from_state_modular(state, chosen, notchosen, sparse)
         svds = bip.sparsesvd(W, \
                              k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
     else:
+        notchosen = bip.notchosen(chosen, int(log2(len(state))))
+        W = matrix_from_state_IQFT(state, chosen, notchosen)
         svds = numpysvd(W, compute_uv=False)
 
     return - np.sum([i ** 2 * 2 * np.log2(i) for i in svds if i > 1e-16])
 
-
-def slicing_index(i: int, L: int) -> list:
-    """auxiliary function"""
-    return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
 
 def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     """
@@ -115,8 +149,3 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in
                     combinations_considered])
     return results
-
-# midway: 13 s L=5 ,330 s for L=6
-# qiskit final state: 0.25 L=4  ,1s for L=5 ,6 sec for L = 6 ,37 sec for L = 7,(311 sec  L = 8 memory 20%), after 90 min  L=9 mem swapping then error)
-
-# _ = entanglement_entropy(13, 21, 100)

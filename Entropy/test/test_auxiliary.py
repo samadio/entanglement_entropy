@@ -24,6 +24,9 @@ class AuxiliaryTests(TestCase):
         self.assertEqual(lfy(312), 9)
 
     def test_nonzeros_decimal(self):
+        def __nonzeros_aux_test__(m: int, L: int, Y: int, N: int) -> int:
+            return m * (2 ** L) + ((Y ** m) % N)
+
         N = 21
         L = lfy(N)
         Y = 13

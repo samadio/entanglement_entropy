@@ -75,9 +75,6 @@ def lfy(n: int) -> int:
 
 
 
-def __nonzeros_aux_test__(m: int, L: int, Y: int, N: int) -> int:
-    return m * (2 ** L) + ((Y ** m) % N)
-
 def nonzeros_decimal(k: int, Y: int, N: int) -> list:
     """
         Return nonzero indexes of modular exponentiation for Y coprime of N at k-th computational step

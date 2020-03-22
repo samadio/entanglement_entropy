@@ -70,7 +70,25 @@ class Test(TestCase):
             notchosen_qubits = notchosen(chosen_qubits, number_of_qubits)
             myentropy = entanglement_entropy_from_state(state, chosen_qubits)
             qentropy = entropy(partial_trace(qstate, [number_of_qubits - 1 - i for i in notchosen_qubits]))
-            self.assertTrue(np.abs(myentropy - qentropy) < 1e-12)
+            self.assertTrue(np.abs(myentropy - qentropy) < 1e-14)
+
+    def test_IQFT_entropy_equals_qiskit(self):
+        Y = 13
+        N = 21
+        L = aux.lfy(N)
+        k = 2 * L
+        number_of_qubits = 3 * L
+
+        state = construct_modular_state(k, L, aux.nonzeros_decimal(k, Y, N))
+        state = apply_IQFT(L, state)
+
+        tries = 30
+        for i in range(tries):
+            chosen_qubits = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
+            notchosen_qubits = notchosen(chosen_qubits, number_of_qubits)
+            myentropy = entanglement_entropy_from_state(state, chosen_qubits, False)
+            qentropy = entropy(partial_trace(Statevector(state), [number_of_qubits - 1 - i for i in notchosen_qubits]))
+            self.assertTrue(np.abs(myentropy - qentropy) < 1e-14)
 
     def test_max_memory(self):
         for L in range(5,13):
