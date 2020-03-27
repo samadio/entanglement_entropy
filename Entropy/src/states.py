@@ -35,7 +35,7 @@ def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notc
     if sparse:
         return scipy.sparse.coo_matrix((data, (row, col)), shape=(2 ** len(chosen), 2 ** len(notchosen))).tocsr()
     flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(row, col)]
-    W = np.zeros(2 ** (len(chosen) + len(notchosen)))
+    W = np.zeros(2 ** (len(chosen) + len(notchosen)), dtype=complex)
     W[flatrow_idx] = norm
     return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
@@ -61,26 +61,20 @@ def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list):
     flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(row, col)]
 
     #del row, col, nonzero_idx_binary
-    W = np.zeros(len(state))
+    W = np.zeros(len(state), dtype=complex)
     for new_idx, old_idx in zip(flatrow_idx, nonzero_idx):
         W[new_idx] = state[old_idx]
     #del nonzero_idx
     return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
 
-# -----------------------------------------------------------------
-# unused functions
-def slicing_index(i: int, L: int) -> list:
-    """auxiliary function"""
-    return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
-
-
 def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) -> float:
     """
         Compute entanglement entropy of state according to chosen bipartition of qubits
 
-    :param state:   array representing state of the system of qubits, can be scipy.sparse or numpy
+    :param state:   array representing state of the system of qubits, can be scipy.sparse or numpy depending on sparse
     :param chosen:  selected qubits
+    :param sparse: True if dense representation (state is np.ndarray), False if state is a scipy.sparse.coo_matrix
     :return: S
     """
     if sparse:
@@ -93,7 +87,15 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
         W = matrix_from_state_IQFT(state, chosen, notchosen)
         svds = numpysvd(W, compute_uv=False)
 
-    return - np.sum([i ** 2 * 2 * np.log2(i) for i in svds if i > 1e-16])
+    svds = svds ** 2
+    return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
+
+
+# -----------------------------------------------------------------
+# unused functions
+def slicing_index(i: int, L: int) -> list:
+    """auxiliary function"""
+    return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
 
 
 def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:

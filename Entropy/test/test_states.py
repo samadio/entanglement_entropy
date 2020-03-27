@@ -88,7 +88,7 @@ class Test(TestCase):
             notchosen_qubits = notchosen(chosen_qubits, number_of_qubits)
             myentropy = entanglement_entropy_from_state(state, chosen_qubits, False)
             qentropy = entropy(partial_trace(Statevector(state), [number_of_qubits - 1 - i for i in notchosen_qubits]))
-            self.assertTrue(np.abs(myentropy - qentropy) < 1e-14)
+            self.assertTrue(np.abs(myentropy - qentropy) < 1e-13)
 
     def test_max_memory(self):
         for L in range(5,13):
