@@ -1,5 +1,10 @@
-from src.states import *
 from math import ceil
+from src.states import *
+from notify_run import Notify
+from time import time
+
+
+program_time = time()
 
 sparse = False
 Y = 13
@@ -15,6 +20,7 @@ files = [open("svd_convergence/" + "Partition " + str(j) + ".txt", 'a+') for j i
 for i, N in enumerate(numbers):
     L = L_list[i]
     [print("\nL = " + str(L) + "\n", file=file) for file in files]
+    [print("[", file=file) for file in files]
 
     nonzeros = [aux.nonzeros_decimal(2 * aux.lfy(N), Y, N) for N in numbers]
     for k in range(1, 2 * L + 1):
@@ -25,12 +31,12 @@ for i, N in enumerate(numbers):
             svd = scipy.linalg.svd(W, compute_uv=False, overwrite_a=True, check_finite=False)
             svd = svd ** 2
             svd = - np.sort(-svd)
-            svd[np.abs(svd) < 5e-16] = 1
+            svd[np.abs(svd) < 2e-16] = 1
 
             entropy = [- np.sum(svd[: ceil(2 * upper * len(svd))] * np.log2(svd[:ceil(2 * upper * len(svd))])) for upper in
                        [.01, .02, .03, .04, .05, .06, .07, .08, .09, 0.1, .5]]
 
-            print(entropy, file=files[j])
+            print(entropy, file=files[j], end=",")
 
     current_state = apply_IQFT(L, current_state)
     for j in range(number_of_bipartitions):
@@ -39,12 +45,18 @@ for i, N in enumerate(numbers):
         svd = svd ** 2
         svd = - np.sort(-svd)
 
-        # so that eigenvalues less then trehsold do not contribute to sum
-        svd[np.abs(svd) < 5e-16] = 1
+        # so that eigenvalues below threshold do not contribute to sum
+        svd[np.abs(svd) < 2e-16] = 1
 
-        entropy = [- np.sum(svd[:ceil(upper * len(svd))] * np.log2(svd[:ceil(upper * len(svd))])) for upper in
-                   [.1, .2, .3, .4, .5, .6, .7, .8, .9, 1]]
+        entropy = [- np.sum(svd[:ceil(2 * upper * len(svd))] * np.log2(svd[:ceil(2 * upper * len(svd))])) for upper in
+                   [.01, .02, .03, .04, .05, .06, .07, .08, .09, 0.1, .5]]
 
         print(entropy, file=files[j])
+        print("]", file=files[j])
 
+program_time = (time() - program_time) / 60
+
+notice = Notify()
+notice.send("Work done after " + str(program_time) + " minutes")
+print("Work done after " + str(program_time) + " minutes", file=files[0])
 [file.close() for file in files]
