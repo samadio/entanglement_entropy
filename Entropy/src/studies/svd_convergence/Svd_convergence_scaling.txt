@@ -1,0 +1,20 @@
+L = 8, k = 16
+scipy sparse total svd time
+4477.036399841309
+
+numpy total svd time
+8.156049728393555
+
+scipy total svd time
+10.779414176940918
+time scaling for computing scipy sparse truncated svd
+
+
+100 * time for computing x*total singular values /  total sparse time:  for x in linspace(0.1,1, num=10)
+[  0.88563186   4.96868167  13.92268211  29.59224523  45.05887819
+ 103.76764272 101.16298995 107.48799162 104.67965566  94.12720358]
+
+time for x*sv / scipy_time
+[  3.67831315  20.6365284   57.82536374 122.90608458 187.14397135
+ 430.98029815 420.16233987 446.43210023 434.76818038 390.94046276]
+Work done after 526.8856985529263 minutes
