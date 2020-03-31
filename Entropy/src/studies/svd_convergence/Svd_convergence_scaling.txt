@@ -18,3 +18,25 @@ time for x*sv / scipy_time
 [  3.67831315  20.6365284   57.82536374 122.90608458 187.14397135
  430.98029815 420.16233987 446.43210023 434.76818038 390.94046276]
 Work done after 526.8856985529263 minutes
+
+
+
+L = 8, k = 16
+scipy sparse total svd time
+6786.313086986542
+
+numpy total svd time
+8.36391568183899
+
+scipy total svd time
+10.876038789749146
+time scaling for computing scipy sparse truncated svd
+
+100 * time for computing x*total singular values /  total sparse time:  for x in linspace(0.02,0.2, num=10)
+[0.06949467 0.1523591  0.25843829 0.4068321  0.58949289 0.97053339
+ 1.41376481 1.92641396 2.33381293 3.41785185]
+
+time for x*sv / scipy_time
+[ 0.43362536  0.95067384  1.61257529  2.53850693  3.67825403  6.05582929
+  8.82145682 12.02022953 14.56227356 21.3263424 ]
+Work done after 126.50825551350911 minutes
