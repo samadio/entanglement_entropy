@@ -46,6 +46,7 @@ with open("Svd_convergence_scaling.txt", "a+") as file:
     def round_local(x, W):
         return aux.math.ceil(x * (min(W.shape) - 2))
 
+
     print("time scaling for computing scipy sparse truncated svd\n", file=file)
     reduced_times = []
     W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
@@ -58,7 +59,8 @@ with open("Svd_convergence_scaling.txt", "a+") as file:
 
         np.testing.assert_array_almost_equal(-np.sort(-sv)[:len(reduced_sv)], -np.sort(-reduced_sv))
 
-    print("100 * time for computing x*total singular values /  total sparse time:  for x in linspace(0.2,0.02, num=10)", file=file)
+    print("100 * time for computing x*total singular values /  total sparse time:  for x in linspace(0.2,0.02, num=10)",
+          file=file)
     print(100 * np.array(reduced_times) / whole, file=file)
 
     print("\ntime for x*sv / scipy_time", file=file)
