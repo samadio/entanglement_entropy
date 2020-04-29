@@ -37,15 +37,10 @@ with open("entropy_test.txt", "a+") as file:
             notchosen = bip.notchosen(chosen, k + L)
             W = matrix_from_state_modular(state, chosen, notchosen, False)
 
-            if L == 9:
-                print("look!")
-
             start = time()
 
             l = jeigh(W.dot(W.T))
             jax_time.append(time() - start)
-            if L == 9:
-                print("dont look!")
 
             l = np.array(l)
             l[l < 1e-15] = 1
