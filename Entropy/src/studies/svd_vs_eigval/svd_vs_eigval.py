@@ -1,11 +1,12 @@
-from src.auxiliary.bipartitions import random_bipartition, notchosen
+from src.auxiliary.bipartitions import random_bipartition
 from src.states import *
+from src.auxiliary import auxiliary as aux, bipartitions as bip
 
 from time import time
 import matplotlib.pyplot as plt
 
 Y = 13
-numb = [21, 33, 66, 129]
+numb = [21, 33, 66, 129]#, 261]
 np_eigval_time = []
 jax_sv_time = []
 L_list = []
@@ -31,19 +32,26 @@ for N in numb:
         sv2 = sv ** 2
         np_sv_time.append(time() - start)
 
+svd_means = []
+eig_means = []
+svd_vars = []
+eig_vars = []
+L_list = []
+
 for i in range(len(numb)):
     L = aux.lfy(numb[i])
+    L_list.append(L)
     plt.scatter(range(1, tries + 1), np_sv_time[i * tries:(i + 1) * tries], c='red', marker='o',
                 label="numpy svd")
     plt.scatter(range(1, tries + 1), np_eigval_time[i * tries:(i + 1) * tries], c='blue', marker='o',
-                label="numpy eigval")
+                label="numpy eigvalh")
 
     plt.legend()
-    plt.xticks(range(0, tries, 10))
+    plt.xticks(range(0, tries+10, 10))
     plt.xlabel("tries")
-    plt.ylabel("sec")
+    plt.ylabel("seconds")
     plt.title("Methods comparison, L = " + str(L))
-    #plt.savefig("svd_vs_eigen_stability_L_" + str(L) + ".png", dpi=200)
+    plt.savefig("svd_vs_eigen_L_" + str(L) + ".png", dpi=200)
     plt.show()
 
     sv_mean = np.mean(np_sv_time[i * tries:(i + 1) * tries])
@@ -51,33 +59,23 @@ for i in range(len(numb)):
     eigval_mean = np.mean(np_eigval_time[i * tries:(i + 1) * tries])
     eigval_var = np.var(np_eigval_time[i * tries:(i + 1) * tries])
 
-    print("Svd time, L = " + str(L))
-    print(str(sv_mean) + " ± " + str(np.sqrt(sv_var)))
-    print("Eigval time:")
-    print(str(eigval_mean) + " ± " + str(np.sqrt(eigval_var)))
+    svd_means.append(sv_mean)
+    eig_means.append(eigval_mean)
+    svd_vars.append(sv_var)
+    eig_vars.append(eigval_var)
+
+with open("svd_vs_eigval.txt","a+") as file:
+    print("tries: " + str(tries))
+    print("L = " + str(L_list), file=file)
+
+    print("svd means: " + str(svd_means), file=file)
+    print("svd std: " + str(np.sqrt(svd_means)), file=file)
+
+    print("eig means: " + str(eig_means), file=file)
+    print("eig std: " + str(np.sqrt(eig_vars)), file=file)
     print("")
 
 '''
-Eigval + sort
-Svd time, L = 5
-0.005513639450073242 ± 0.0005152399007231244
-Eigval time:
-0.002817845344543457 ± 0.0015741710243476835
-
-Svd time, L = 6
-0.12823628425598144 ± 0.011132972778282884
-Eigval time:
-0.12865104913711548 ± 0.06597776984054421
-
-Svd time, L = 7
-2.20906457901001 ± 0.3030635547047696
-Eigval time:
-1.2304845142364502 ± 0.6147902056516473
-
-Svd time, L = 8
-21.432851047515868 ± 0.6818328365473627
-Eigval time:
-47.941647295951846 ± 21.17927780740292
 
 Eigvalh
 Svd time, L = 5
