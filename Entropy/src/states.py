@@ -1,11 +1,11 @@
 from itertools import combinations
 from math import log2 as log2
-from src.IQFT import *
+from IQFT import *
 
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
-from src.auxiliary import auxiliary as aux, bipartitions as bip
+from auxiliary import auxiliary as aux, bipartitions as bip
 from numpy.linalg import svd as numpysvd
 
 
@@ -60,11 +60,9 @@ def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list):
 
     flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(row, col)]
 
-    #del row, col, nonzero_idx_binary
     W = np.zeros(len(state), dtype=complex)
     for new_idx, old_idx in zip(flatrow_idx, nonzero_idx):
         W[new_idx] = state[old_idx]
-    #del nonzero_idx
     return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
 
@@ -151,3 +149,5 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in
                     combinations_considered])
     return results
+
+

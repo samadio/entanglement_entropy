@@ -1,7 +1,4 @@
-from math import log2 as log2
-import numpy as np
-
-from src.auxiliary import auxiliary as aux
+import auxiliary as aux
 from scipy.sparse.coo import coo_matrix as coo_matrix
 from scipy.sparse.linalg import svds as sparsesvd
 from scipy.special import comb as bin_coeff

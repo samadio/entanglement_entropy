@@ -1,9 +1,11 @@
 from unittest import TestCase
 
+from src.auxiliary import auxiliary as aux
 from src.auxiliary.bipartitions import random_bipartition, notchosen
 from src.auxiliary.bipartitions import entropy as binentropy
 from src.states import *
 from qiskit.quantum_info import partial_trace, entropy, Statevector
+from jax.numpy.linalg import svd as jsvd
 
 
 class Test(TestCase):
@@ -91,6 +93,81 @@ class Test(TestCase):
             self.assertTrue(np.abs(myentropy - qentropy) < 1e-13)
 
     def test_max_memory(self):
-        for L in range(5,13):
+        for L in range(5, 13):
             state = np.ones(2 ** (3 * L + 1))
             print(str(L) + "it's fine")
+
+    def test_projected_entropy(self):
+        Y = 13
+        N = 21
+        L = aux.lfy(N)
+        k = L
+        number_of_qubits = k + L
+
+        proj_state = construct_modular_state(k, L, aux.nonzeros_decimal(k, Y, N)).toarray().flatten()
+
+        state = np.zeros(2 ** (3 * L))
+        state[:2 ** (k + L)] = proj_state.flatten()
+
+        tries = 100
+        for i in range(tries):
+            chosen_qubits = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
+            proj_entr = entanglement_entropy_from_state(proj_state, chosen_qubits, False)
+            entr = entanglement_entropy_from_state(state, [2 * L - k + i for i in chosen_qubits], False)
+
+            np.testing.assert_almost_equal(proj_entr, entr)
+
+    def test_svd_jax(self):
+        Y = 13
+        numb = [21, 33, 66]
+        tries = 100
+
+        for N in numb:
+            eigval_entr = []
+            jax_entr = []
+            L = aux.lfy(N)
+            k = 2 * L
+            number_of_qubits = k + L
+            state = construct_modular_state(k, L, aux.nonzeros_decimal(k, Y, N))
+            chosens = [random_bipartition(range(number_of_qubits), number_of_qubits // 2) for i in range(tries)]
+            for i in range(tries):
+                chosen = chosens[i]
+                notchosen = bip.notchosen(chosen, k + L)
+                W = matrix_from_state_modular(state, chosen, notchosen, False)
+                jsv = np.array(jsvd(W, compute_uv=False), dtype=float)
+                jsv2 = jsv ** 2
+                jsv2[jsv2 < 1e-15] = 1
+                jax_entr.append(np.sum(jsv2 * np.log2(jsv2)))
+                l = np.linalg.eigvalsh(W.dot(W.T))
+                l[l < 1e-15] = 1
+                eigval_entr.append(np.sum(l * np.log2(l)))
+            np.testing.assert_array_almost_equal(eigval_entr, jax_entr, decimal=5)
+            #jax is precise up to 1e-6
+
+'''
+    def test_svd_eigvals(self):
+        Y = 13
+        numb = [21, 33, 66]
+        tries = 100
+
+        for N in numb:
+            eigval_entr = []
+            svd_entr = []
+            L = aux.lfy(N)
+            k = 2 * L
+            number_of_qubits = k + L
+            state = construct_modular_state(k, L, aux.nonzeros_decimal(k, Y, N))
+            chosens = [random_bipartition(range(number_of_qubits), number_of_qubits // 2) for i in range(tries)]
+            for i in range(tries):
+                chosen = chosens[i]
+                notchosen = bip.notchosen(chosen, k + L)
+                W = matrix_from_state_modular(state, chosen, notchosen, False)
+                sv = numpysvd(W, compute_uv=False)
+                sv2 = sv ** 2
+                sv2[sv2 < 1e-15] = 1
+                svd_entr.append(np.sum(sv2 * np.log2(sv2)))
+                l = np.linalg.eigvalsh(W.dot(W.T))
+                l[l < 1e-15] = 1
+                eigval_entr.append(np.sum(l * np.log2(l)))
+            np.testing.assert_array_almost_equal(eigval_entr, svd_entr, decimal=12)
+'''

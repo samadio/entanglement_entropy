@@ -1,7 +1,7 @@
 from random import randint
 
 import numpy as np
-import math
+from math import log2,gcd, ceil
 
 
 def decimal_to_binary(number: int, length: int) -> str:
@@ -41,7 +41,7 @@ def coprime(n: int) -> int:
     Y = randint(2, n)
     used = []
     while 1:
-        a = math.gcd(Y, n)
+        a = gcd(Y, n)
         if a > 1:
             # this Y is not coprime
             used.append(Y)
@@ -71,7 +71,7 @@ def lfy(n: int) -> int:
     :param n:  number to be represented
     :return number of qubits needed to represent n
     """
-    return int(math.ceil(math.log2(n)))
+    return int(ceil(log2(n)))
 
 
 

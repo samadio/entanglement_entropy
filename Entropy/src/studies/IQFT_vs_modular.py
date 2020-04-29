@@ -5,6 +5,7 @@ from src.auxiliary.auxiliary import lfy, nonzeros_decimal
 from src.auxiliary.bipartitions import random_bipartition
 import src.states as st
 
+
 for sparse in [False, True]:
 
     if sparse:

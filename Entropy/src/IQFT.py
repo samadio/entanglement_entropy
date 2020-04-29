@@ -1,9 +1,9 @@
+import numpy as np
 import qiskit as qt
 from scipy.sparse import coo_matrix, identity
 from scipy.sparse import kron as tensor
-from src.auxiliary.bipartitions import np
 
-from src.auxiliary import auxiliary as aux
+from auxiliary import auxiliary as aux
 from qiskit.execute import execute
 from qiskit.circuit.quantumcircuit import QuantumCircuit
 from qiskit.aqua.circuits import FourierTransformCircuits as QFT
