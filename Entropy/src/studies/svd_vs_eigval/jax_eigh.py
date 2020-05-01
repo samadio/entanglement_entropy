@@ -45,7 +45,7 @@ with open("entropy_test.txt", "a+") as file:
             l = np.array(l)
             l[l < 1e-15] = 1
             entropy = np.sum(l * np.log2(l))
-            print(entropy, file=file)
+            #print(entropy, file=file)
 
             start = time()
 
@@ -53,7 +53,7 @@ with open("entropy_test.txt", "a+") as file:
             numpy_time.append(time() - start)
             nl[nl < 1e-15] = 1
             entropy = np.sum(nl * np.log2(nl))
-            print(entropy, file=file)
+            #print(entropy, file=file)
 
 means = []
 std_dev = []
