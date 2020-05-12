@@ -1,4 +1,3 @@
-from itertools import combinations
 from math import log2 as log2
 from IQFT import *
 
@@ -144,10 +143,8 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     # if L <= 5:
     #    final_state = sparse_tensordot(operator_IQFT(2 * L), sparse_identity(2 ** L)).dot(current_state)
     # else:
-    final_state = applyIQFT_circuit(L, current_state)
-    combinations_considered = [i for i in combinations([i for i in range(3 * L)], 3 * L // 2)][:200]
-    results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in
-                    combinations_considered])
-    return results
-
-
+    #final_state = applyIQFT_circuit(L, current_state)
+    #combinations_considered = [i for i in combinations([i for i in range(3 * L)], 3 * L // 2)][:200]
+    #results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in
+    #                combinations_considered])
+    #return results
