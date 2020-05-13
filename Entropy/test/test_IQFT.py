@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.states import *
+from states import *
 from math import sqrt
 from qutip.qip.algorithms.qft import qft
 from scipy.sparse import kron

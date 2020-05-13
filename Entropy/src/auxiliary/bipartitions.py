@@ -1,10 +1,10 @@
-import auxiliary as aux
+import auxiliary.auxiliary as aux
 from scipy.sparse.coo import coo_matrix as coo_matrix
 from scipy.sparse.linalg import svds as sparsesvd
 from scipy.special import comb as bin_coeff
 from random import sample as sample
 from numpy.linalg import svd as numpysvd
-
+import numpy as np
 
 def random_bipartition(sample_space: list, bipartition_size: int) -> list:
     return sample(sample_space, bipartition_size)
