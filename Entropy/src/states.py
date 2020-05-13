@@ -5,8 +5,7 @@ import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
-from numpy.linalg import svd as numpysvd
-
+from jax.numpy.linalg import eigvalsh
 
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
     data = np.ones(2 ** k) * 2 ** (- k / 2)
@@ -40,7 +39,7 @@ def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notc
 
 
 #matrix from states can be reunited if I decide to store the state directly as np.ndarray
-def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list):
+def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list) ->np.ndarray:
     """
         Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix for state after IQFT
 
@@ -74,19 +73,18 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
     :param sparse: True if dense representation (state is np.ndarray), False if state is a scipy.sparse.coo_matrix
     :return: S
     """
+
+    notchosen = bip.notchosen(chosen, int(log2(len(state))))
     if sparse:
-        notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
         W = matrix_from_state_modular(state, chosen, notchosen, sparse)
         svds = bip.sparsesvd(W, \
                              k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
-    else:
-        notchosen = bip.notchosen(chosen, int(log2(len(state))))
-        W = matrix_from_state_IQFT(state, chosen, notchosen)
-        svds = numpysvd(W, compute_uv=False)
-
-    svds = svds ** 2
-    return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
-
+        svds = svds ** 2
+        return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
+    W = matrix_from_state_IQFT(state, chosen, notchosen)
+    eig = eigvalsh(W.dot(W.T))
+    eig = eig[eig != 0]
+    return - np.sum(eig * np.log2(eig))
 
 # -----------------------------------------------------------------
 # unused functions
