@@ -48,7 +48,7 @@ def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list) ->n
     :param notchosen: qubits to trace away
     :return:  W
     """
-
+    
     nonzero_idx = np.flatnonzero(state)
     qubits = int(log2(len(state)))
 
@@ -74,13 +74,14 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
     :return: S
     """
 
-    notchosen = bip.notchosen(chosen, int(log2(len(state))))
+    notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
     if sparse:
         W = matrix_from_state_modular(state, chosen, notchosen, sparse)
         svds = bip.sparsesvd(W, \
                              k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
         svds = svds ** 2
         return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
+
     W = matrix_from_state_IQFT(state, chosen, notchosen)
     eig = eigvalsh(W.dot(W.T))
     eig = eig[eig != 0]
