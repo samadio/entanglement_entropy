@@ -84,7 +84,7 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
 
     W = matrix_from_state_IQFT(state, chosen, notchosen)
     eig = eigvalsh(W.dot(W.T))
-    eig = eig[abs(eig) > 1e-7]
+    eig = eig[eig != 0]
     return - np.sum(eig * np.log2(eig))
 
 # -----------------------------------------------------------------
