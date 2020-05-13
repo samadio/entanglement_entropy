@@ -64,7 +64,7 @@ for i in range(len(numb)):
     svd_vars.append(sv_var)
     eig_vars.append(eigval_var)
 
-with open("svd_vs_eigval.txt","a+") as file:
+with open("svd_vs_eigval.txt", "a+") as file:
     print("tries: " + str(tries))
     print("L = " + str(L_list), file=file)
 
