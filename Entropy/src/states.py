@@ -118,7 +118,7 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
     ''' Modular exponentiation  '''
     for k in range(1, 2 * L + 1):
         current_state = construct_modular_state(k, L, nonzeros_decimal_positions[:2 ** k]).toarray().reshape(
-            2 ** (3 * L))
+            2 ** (k + L))
         considered_qubits = range(k + L)
         bipartition_size = (k + L) // 2
         combinations_considered = [bip.random_bipartition(considered_qubits, bipartition_size) for j in range(maxiter)]
@@ -173,3 +173,18 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
             previous_var = current_var
 
     return False, results
+
+
+Y = 13
+numbers = [21, 33]
+maxiter = 100
+step = 10
+entropies = []
+times = []
+
+from time import time
+
+for N in numbers:
+    start = time()
+    entropies.append(entanglement_entropy_montecarlo(Y, N, maxiter, step))
+    times.append((time() - start) / 60)
