@@ -128,7 +128,7 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
                                    for chosen in combinations(considered_qubits, bipartition_size)]])
         else:
             results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered))
-            print(str(k) + "-th computational step done \n")
+            #print(str(k) + "-th computational step done \n")
 
     ''' IQFT '''
     current_state = applyIQFT_circuit(L, current_state)
