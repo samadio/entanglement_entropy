@@ -1,12 +1,11 @@
-from itertools import combinations
+from itertools import combinations as combinations
 from math import log2 as log2
 from IQFT import *
-
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
-from numpy.linalg import svd as numpysvd
+from jax.numpy.linalg import eigvalsh as jeigh
 
 
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
@@ -15,7 +14,8 @@ def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) 
     return bip.coo_matrix((data, (nonzero_elements_decimal_idx, col)), shape=(2 ** (k + L), 1)).tocsr()
 
 
-def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list, sparse: bool = True):
+def matrix_from_sparse_modular_state(state: scipy.sparse.coo_matrix, chosen: list, notchosen: list,
+                                     sparse: bool = True):
     """
         Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix for modular exponentiation state
 
@@ -40,8 +40,8 @@ def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notc
     return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
 
-#matrix from states can be reunited if I decide to store the state directly as np.ndarray
-def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list):
+# matrix from states can be reunited if I decide to store the state directly as np.ndarray
+def matrix_from_dense_state_IQFT(state: np.ndarray, chosen: list, notchosen: list):
     """
         Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix for state after IQFT
 
@@ -75,37 +75,35 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
     :param sparse: True if dense representation (state is np.ndarray), False if state is a scipy.sparse.coo_matrix
     :return: S
     """
+    notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
+
     if sparse:
-        notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
-        W = matrix_from_state_modular(state, chosen, notchosen, sparse)
+        W = matrix_from_sparse_modular_state(state, chosen, notchosen, sparse)
         svds = bip.sparsesvd(W, \
                              k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
+        svds = svds ** 2
+        return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
+
     else:
-        notchosen = bip.notchosen(chosen, int(log2(len(state))))
-        W = matrix_from_state_IQFT(state, chosen, notchosen)
-        svds = numpysvd(W, compute_uv=False)
+        W = matrix_from_dense_state_IQFT(state, chosen, notchosen)
+        eigvals = np.array(jeigh(W.dot(W.T)))
+        eigvals[eigvals < 1e-15] = 1
 
-    svds = svds ** 2
-    return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
-
-
-# -----------------------------------------------------------------
-# unused functions
-def slicing_index(i: int, L: int) -> list:
-    """auxiliary function"""
-    return [i % (2 ** L) + m * 2 ** L for m in range(2 ** (2 * L))]
+        return - np.sum(eigvals * np.log2(eigvals))
 
 
-def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
+def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100) -> list:
     """
         This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
         bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
         used when required. For k = [1, 2L] the computational steps consists in modular exponentiation. k = 2L + 1
         consists in the application of the IQFT on the control register.
 
-    :param N:       Number to be factorized
     :param Y:       coprime of N to find the order of
+    :param N:       Number to be factorized
+    :param maxiter: Maximum number of iterations at which Montecarlo method stops
     :param step:    step of Montecarlo method: at least 2 * steps iteration will be computed
+
     :return: S:     Entanglement entropy: S[k][1] will give entropy for (k+1)-th computation steps computed
                     on different bipartitions
     """
@@ -113,41 +111,65 @@ def entanglement_entropy(Y: int, N: int, step: int = 100) -> list:
     L = aux.lfy(N)
     # print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
 
-    nonzeros_decimal = aux.nonzeros_decimal(2 * L, N, Y)
-    # print("nonzeros done")
+    nonzeros_decimal_positions = aux.nonzeros_decimal(2 * L, N, Y)
     results = []
     current_state = 0
 
     ''' Modular exponentiation  '''
     for k in range(1, 2 * L + 1):
-        current_state = construct_modular_state(k, L, nonzeros_decimal[:2 ** k])
+        current_state = construct_modular_state(k, L, nonzeros_decimal_positions[:2 ** k]).toarray().reshape(
+            2 ** (3 * L))
         considered_qubits = range(k + L)
         bipartition_size = (k + L) // 2
-        ### TO BE DELETED:
-        combinations_considered = [bip.random_bipartition(range(k + L), (k + L) // 2) for j in range(200)]
+        combinations_considered = [bip.random_bipartition(considered_qubits, bipartition_size) for j in range(maxiter)]
 
-        # if bip.number_of_bipartitions(k + L) <= step:
-        results.append([entanglement_entropy_from_state(current_state, chosen) \
-                        for chosen in combinations_considered])
-        # else:
-        # results.append((k, bip.montecarlo_single_k(k, Y, L, nonzero_binary, step)))
-        # print(str(k) + "-th computational step done")
+        if bip.number_of_bipartitions(k + L) <= step:
+            results.append([True, [entanglement_entropy_from_state(current_state, chosen, False) \
+                                   for chosen in combinations(considered_qubits, bipartition_size)]])
+        else:
+            results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered))
+            print(str(k) + "-th computational step done \n")
 
     ''' IQFT '''
-    # FINAL STATE CAN BE COMPUTED WITHOUT THIS TENSOR PRODUCT, but probably would be less efficient: TO BE TESTED
-    # tensor product: 3s but 78% of memory for N=21. Not feasible for N>=32
-    # explicit calculation with for loop: 150 s, 1% memory usage
-    # constructing diagonal sparse matrix: do not make sense: I should store 2**(5*L) elements. unfeasible like tensor
-    # midway: even worst: 90% memory usage and a lot of time
+    current_state = applyIQFT_circuit(L, current_state)
+    if bip.number_of_bipartitions(3 * L) <= step:
+        results.append((True, [entanglement_entropy_from_state(current_state, chosen, False) \
+                               for chosen in combinations(considered_qubits, bipartition_size)]))
+    else:
+        results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered))
 
-    # t0 = time.time()
-    # if L <= 5:
-    #    final_state = sparse_tensordot(operator_IQFT(2 * L), sparse_identity(2 ** L)).dot(current_state)
-    # else:
-    final_state = applyIQFT_circuit(L, current_state)
-    combinations_considered = [i for i in combinations([i for i in range(3 * L)], 3 * L // 2)][:200]
-    results.append([qt.quantum_info.entropy(qt.quantum_info.partial_trace(final_state, chosen)) for chosen in
-                    combinations_considered])
     return results
 
 
+def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations_considered: list):
+    """
+        Description
+    :param state:                       state of the system
+    :param step:                        step of Montecarlo method
+    :param maxiter:                     maximum number of iteration for Montecarlo method
+    :param combinations_considered:     combinations considered by the Montecarlo method
+    :return:                            results as list of entropies
+    """
+
+    results = []
+    for i in range(maxiter):
+        current_bipartition = combinations_considered[i]
+        results.append(entanglement_entropy_from_state(state, current_bipartition, False))
+
+        # first step
+        if i + 1 == step:
+            previous_mean = np.mean(results)
+            previous_var = np.var(results, ddof=1)
+            continue
+
+        if i + 1 % step == 0:
+            current_mean = np.mean(results)
+            current_var = np.var(results, ddof=1)
+
+            tol = (i + 1) ** (- 1 / 2)
+            if np.abs(previous_mean - current_mean) < tol and np.abs(previous_var - current_var) < tol:
+                return True, results
+            previous_mean = current_mean
+            previous_var = current_var
+
+    return False, results

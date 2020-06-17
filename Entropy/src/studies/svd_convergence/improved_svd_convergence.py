@@ -27,7 +27,7 @@ for i, N in enumerate(numbers):
         notchosen_list = [bip.notchosen(partition, k + L) for partition in sampled_bipartitions[i][k - 1]]
         current_state = construct_modular_state(k, L, nonzeros[i][: 2 ** k])
         for j in range(number_of_bipartitions):
-            W = matrix_from_state_modular(current_state, sampled_bipartitions[i][k - 1][j], notchosen_list[j], sparse)
+            W = matrix_from_sparse_modular_state(current_state, sampled_bipartitions[i][k - 1][j], notchosen_list[j], sparse)
             svd = scipy.linalg.svd(W, compute_uv=False, overwrite_a=True, check_finite=False)
             svd = svd ** 2
             svd = - np.sort(-svd)
@@ -40,7 +40,7 @@ for i, N in enumerate(numbers):
 
     current_state = apply_IQFT(L, current_state)
     for j in range(number_of_bipartitions):
-        W = matrix_from_state_IQFT(current_state, sampled_bipartitions[i][k - 1][j], notchosen_list[j])
+        W = matrix_from_dense_state_IQFT(current_state, sampled_bipartitions[i][k - 1][j], notchosen_list[j])
         svd = scipy.linalg.svd(W, compute_uv=False, overwrite_a=True, check_finite=False)
         svd = svd ** 2
         svd = - np.sort(-svd)

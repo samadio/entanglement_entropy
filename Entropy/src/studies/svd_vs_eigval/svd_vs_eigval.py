@@ -23,7 +23,7 @@ for N in numb:
         L_list.append(L)
         chosen = chosens[i]
         notchosen = bip.notchosen(chosen, k + L)
-        W = matrix_from_state_modular(state, chosen, notchosen, False)
+        W = matrix_from_sparse_modular_state(state, chosen, notchosen, False)
         start = time()
         l = np.linalg.eigvalsh(W.dot(W.T))
         np_eigval_time.append(time() - start)

@@ -35,7 +35,7 @@ with open("entropy_test.txt", "a+") as file:
             L_list.append(L)
             chosen = chosens[i]
             notchosen = bip.notchosen(chosen, k + L)
-            W = matrix_from_state_modular(state, chosen, notchosen, False)
+            W = matrix_from_sparse_modular_state(state, chosen, notchosen, False)
 
             start = time()
 

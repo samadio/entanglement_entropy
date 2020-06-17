@@ -32,7 +32,7 @@ class Test(TestCase):
 
         sparse_state = bip.coo_matrix(([1 / 2, 1 / 2, 1 / 2, 1 / 2], (nonzero, [0, 0, 0, 0])), shape=(8, 1)).tocsr()
         chosen = [0, 1]
-        W = matrix_from_state_modular(sparse_state, chosen, bip.notchosen(chosen, 3))
+        W = matrix_from_sparse_modular_state(sparse_state, chosen, bip.notchosen(chosen, 3))
         myreduced = W.dot(W.T).toarray().tolist()
         qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), [0]).data. \
             real.astype(dtype=float, copy=False).tolist()

@@ -17,7 +17,7 @@ for i in range(tries):
     chosen = st.bip.random_bipartition(range(number_of_qubits),number_of_qubits // 2)
     start_time = time()
     notchosen = st.bip.notchosen(chosen, number_of_qubits)
-    W_sparse = st.matrix_from_state_modular(state, chosen, notchosen, True)
+    W_sparse = st.matrix_from_sparse_modular_state(state, chosen, notchosen, True)
     svd = st.bip.sparsesvd(W_sparse, k=min(st.np.shape(W_sparse)) - 1, which='LM', return_singular_vectors=False)
     eigs = svd * svd
     entropy = - st.np.sum([i * st.np.log2(i) for i in eigs if i > 1e-15])
@@ -25,7 +25,7 @@ for i in range(tries):
 
     start_time = time()
     notchosen = st.bip.notchosen(chosen, number_of_qubits)
-    W_dense = st.matrix_from_state_modular(state, chosen, notchosen, False)
+    W_dense = st.matrix_from_sparse_modular_state(state, chosen, notchosen, False)
     svd = numpysvd(W_dense, compute_uv=False)
     eigs = svd * svd
     entropy = - st.np.sum([i * st.np.log2(i) for i in eigs if i > 1e-15])

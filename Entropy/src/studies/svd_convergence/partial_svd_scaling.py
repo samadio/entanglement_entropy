@@ -13,7 +13,7 @@ with open("Svd_convergence_scaling.txt", "a+") as file:
 
     state = construct_modular_state(k, L, nonzero)
     chosen = bip.random_bipartition(range(k + L), (k + L) // 2)
-    W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
+    W = matrix_from_sparse_modular_state(state, chosen, bip.notchosen(chosen, k + L), False)
     percentages = np.linspace(0.02, 0.2, num=10)
 
     print("L = " + str(L) + ", k = " + str(k), file=file)
@@ -24,7 +24,7 @@ with open("Svd_convergence_scaling.txt", "a+") as file:
     whole = time() - whole
     print(whole, file=file)
 
-    W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
+    W = matrix_from_sparse_modular_state(state, chosen, bip.notchosen(chosen, k + L), False)
     print("\nnumpy total svd time", file=file)
     numpy_whole = time()
     num_sv = numpysvd(W, compute_uv=False)
@@ -33,7 +33,7 @@ with open("Svd_convergence_scaling.txt", "a+") as file:
 
     np.testing.assert_array_almost_equal(-np.sort(-num_sv)[:len(sv)], -np.sort(-sv))
 
-    W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
+    W = matrix_from_sparse_modular_state(state, chosen, bip.notchosen(chosen, k + L), False)
     print("\nscipy total svd time", file=file)
     scipy_whole = time()
     _ = scipy.linalg.svd(W, compute_uv=False, overwrite_a=False, check_finite=False)
@@ -47,7 +47,7 @@ with open("Svd_convergence_scaling.txt", "a+") as file:
 
     print("time scaling for computing scipy sparse truncated svd\n", file=file)
     reduced_times = []
-    W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
+    W = matrix_from_sparse_modular_state(state, chosen, bip.notchosen(chosen, k + L), False)
     for x in percentages:
         red = time()
         number_of_sv = round_local(x, W)

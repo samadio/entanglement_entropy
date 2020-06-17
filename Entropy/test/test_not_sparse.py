@@ -14,6 +14,6 @@ class Test(TestCase):
         for i in range(tries):
             chosen = bip.random_bipartition(range(k + L), (k + L) // 2)
             notchosen = bip.notchosen(chosen, k + L)
-            W_sparse = matrix_from_state_modular(state, chosen, notchosen, True).toarray()
-            W_dense = matrix_from_state_modular(state, chosen, notchosen, False)
+            W_sparse = matrix_from_sparse_modular_state(state, chosen, notchosen, True).toarray()
+            W_dense = matrix_from_sparse_modular_state(state, chosen, notchosen, False)
             self.assertListEqual(W_sparse.tolist(), W_dense.tolist())

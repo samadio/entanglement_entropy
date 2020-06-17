@@ -12,11 +12,11 @@ with open("Svd_2_percent_time_scaling.txt", "a+") as file:
 
             state = construct_modular_state(k, L, nonzero)
             chosen = bip.random_bipartition(range(k + L), (k + L) // 2)
-            W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
+            W = matrix_from_sparse_modular_state(state, chosen, bip.notchosen(chosen, k + L), False)
 
             #print("L = " + str(L) + ", k = " + str(k), file=file)
 
-            W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
+            W = matrix_from_sparse_modular_state(state, chosen, bip.notchosen(chosen, k + L), False)
             #print("\nnumpy total svd time", file=file)
             numpy_whole = time()
             num_sv = numpysvd(W, compute_uv=False)
@@ -27,7 +27,7 @@ with open("Svd_2_percent_time_scaling.txt", "a+") as file:
             def round_local(x, W):
                 return aux.math.ceil(x * min(W.shape))
 
-            W = matrix_from_state_modular(state, chosen, bip.notchosen(chosen, k + L), False)
+            W = matrix_from_sparse_modular_state(state, chosen, bip.notchosen(chosen, k + L), False)
             red = time()
             number_of_sv = round_local(0.02, W)
             print(number_of_sv)

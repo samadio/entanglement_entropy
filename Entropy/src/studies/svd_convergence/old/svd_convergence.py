@@ -23,7 +23,7 @@ with open("svd_convergence.txt", "a+") as file:
             print("k = " + str(k) + " : S with fraction of singular values: [0.1,0.2,..,1]. Last one missing", file=file)
             for j in range(number_of_bipartitions):
                 for x in np.linspace(0.1, 1.0, num=10):
-                    W = matrix_from_state_modular(current_state, sampled_bipartitions[i][k-1][j], notchosen_list[j])
+                    W = matrix_from_sparse_modular_state(current_state, sampled_bipartitions[i][k - 1][j], notchosen_list[j])
                     svd = scipy.sparse.linalg.svds(W, which="LM",
                                                    k=min(aux.math.ceil(x * (min(W.shape) - 1)), (min(W.shape) - 2)),
                                                          return_singular_vectors=False)
@@ -36,7 +36,7 @@ with open("svd_convergence.txt", "a+") as file:
         current_state = apply_IQFT(L, current_state)
         for j in range(number_of_bipartitions):
             for x in np.linspace(0.1, 1.0, num=10):
-                W = matrix_from_state_IQFT(current_state, sampled_bipartitions[i][k-1][j], notchosen_list[j])
+                W = matrix_from_dense_state_IQFT(current_state, sampled_bipartitions[i][k - 1][j], notchosen_list[j])
                 svd = scipy.sparse.linalg.svds(W, which="LM",
                                                k=min(aux.math.ceil(x * (min(W.shape) - 1)), (min(W.shape) - 2)),
                                                return_singular_vectors=False)

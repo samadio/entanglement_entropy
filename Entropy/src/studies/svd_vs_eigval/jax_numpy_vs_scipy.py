@@ -8,9 +8,9 @@ command = 'export MKL_NUM_THREADS=3\nexport NUMEXPR_NUM_THREADS=3\nexport OMP_NU
 os.system(command)
 '''
 
-from src.auxiliary import auxiliary as aux
-from src.auxiliary import bipartitions as bip
-from src.states import *
+from auxiliary import auxiliary as aux
+from auxiliary import bipartitions as bip
+from states import *
 
 from time import time
 import matplotlib.pyplot as plt
@@ -37,7 +37,7 @@ with open("entropy_jaxes_test.txt", "a+") as file:
             L_list.append(L)
             chosen = chosens[i]
             notchosen = bip.notchosen(chosen, k + L)
-            W = matrix_from_state_modular(state, chosen, notchosen, False)
+            W = matrix_from_sparse_modular_state(state, chosen, notchosen, False)
 
             start = time()
 
@@ -59,7 +59,7 @@ with open("entropy_jaxes_test.txt", "a+") as file:
             entropy = np.sum(sl * np.log2(sl))
             print(entropy, file=file)
 
-            W = matrix_from_state_modular(state, chosen, notchosen, False)
+            W = matrix_from_sparse_modular_state(state, chosen, notchosen, False)
             start = time()
 
             stl = jseigh(W.dot(W.T), eigvals_only=True, turbo=True, check_finite=False, overwrite_a=True,

@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from src.auxiliary import auxiliary as aux
 from src.auxiliary.bipartitions import random_bipartition, notchosen
-from src.auxiliary.bipartitions import entropy as binentropy
+from src.auxiliary.bipartitions import entropy_binary as binentropy
 from src.states import *
 from qiskit.quantum_info import partial_trace, entropy, Statevector
 from jax.numpy.linalg import svd as jsvd
@@ -38,7 +38,7 @@ class Test(TestCase):
         for i in range(tries):
             chosen = random_bipartition([i for i in range(k + L)], (k + L) // 2)
             W_binary = bip.create_w_from_binary(chosen, bip.notchosen(chosen, k + L), nonzeros_binary).toarray()
-            W_state = matrix_from_state_modular(state, chosen, notchosen(chosen, k + L)).toarray()
+            W_state = matrix_from_sparse_modular_state(state, chosen, notchosen(chosen, k + L)).toarray()
             self.assertListEqual(W_binary.tolist(), W_state.tolist())
 
     def tests_my_entropies_are_equal(self):
@@ -133,7 +133,7 @@ class Test(TestCase):
             for i in range(tries):
                 chosen = chosens[i]
                 notchosen = bip.notchosen(chosen, k + L)
-                W = matrix_from_state_modular(state, chosen, notchosen, False)
+                W = matrix_from_sparse_modular_state(state, chosen, notchosen, False)
                 jsv = np.array(jsvd(W, compute_uv=False), dtype=float)
                 jsv2 = jsv ** 2
                 jsv2[jsv2 < 1e-15] = 1
