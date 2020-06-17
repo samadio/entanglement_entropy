@@ -1,7 +1,7 @@
 from random import randint
 
 import numpy as np
-from math import log2,gcd, ceil
+from math import log2, gcd, ceil
 
 
 def decimal_to_binary(number: int, length: int) -> str:

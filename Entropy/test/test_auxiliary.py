@@ -1,14 +1,14 @@
 from unittest import TestCase
 
-from src.auxiliary.auxiliary import *
-
+from auxiliary.auxiliary import *
+from math import gcd
 
 class AuxiliaryTests(TestCase):
     def test_coprime(self):
         N = 225
         for i in range(10):
             Y = coprime(N)
-            self.assertEqual(math.gcd(Y, N), 1)
+            self.assertEqual(gcd(Y, N), 1)
 
     def test_select_components(self):
         indexes = [1, 2, 5, 7]
