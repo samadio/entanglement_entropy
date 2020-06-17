@@ -173,18 +173,3 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
             previous_var = current_var
 
     return False, results
-
-
-Y = 13
-numbers = [21, 33]
-maxiter = 100
-step = 10
-entropies = []
-times = []
-
-from time import time
-
-for N in numbers:
-    start = time()
-    entropies.append(entanglement_entropy_montecarlo(Y, N, maxiter, step))
-    times.append((time() - start) / 60)
