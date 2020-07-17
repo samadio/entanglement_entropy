@@ -33,7 +33,7 @@ for i, N in enumerate(numbers):
 total_time = time() - start
 
 files = [open("times_L=" + str(L) + ".txt", 'a+') for L in L_list]
-[print(str(number_of_bip) + " bipartitions\nMeans: \n" + str(means[i]), file=files[i]) for i in range(len(numbers))]
+[print(str(number_of_bip) + " bipartitions\nMean times: \n" + str(means[i]), file=files[i]) for i in range(len(numbers))]
 [print("stds: \n" + str(stds[i]), file=files[i]) for i in range(len(numbers))]
 print("total time " + str(total_time), file=files[0])
 [file.close() for file in files]
