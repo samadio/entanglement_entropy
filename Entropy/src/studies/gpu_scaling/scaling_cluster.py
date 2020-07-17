@@ -3,15 +3,13 @@ from states import *
 
 total_start = time()
 
-numbers = [21, 33]#, 66, 131]
+numbers = [21, 33, 66]#, 131]
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 current_state = 0
-number_of_bip = 10
+number_of_bip = 100
 means = [np.ones(2 * L, dtype=float) * 512.32 for L in L_list]
 stds = [np.ones(2 * L, dtype=float) * 512.32 for L in L_list]
-
-[print(mean.shape) for mean in means]
 
 start = time()
 
@@ -33,6 +31,7 @@ for i, N in enumerate(numbers):
 total_time = time() - start
 
 files = [open("/home/samadio/entropy/Entropy/times_L=" + str(L) + ".txt", 'a+') for L in L_list]
+#files = [open("times_L=" + str(L) + ".txt", 'a+') for L in L_list]
 [print(str(number_of_bip) + " bipartitions\nMeans: \n" + str(means[i]), file=files[i]) for i in range(len(numbers))]
 [print("stds: \n" + str(stds[i]), file=files[i]) for i in range(len(numbers))]
 print("total time " + str(total_time), file=files[0])
