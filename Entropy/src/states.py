@@ -1,6 +1,6 @@
 from math import log2 as log2
 from IQFT import *
-
+from jax import device_put
 import numpy as np
 import scipy
 from scipy.sparse import identity as sparse_identity
