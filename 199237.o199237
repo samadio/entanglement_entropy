@@ -1,0 +1,23 @@
+------------------------------------------------------
+This job is allocated on 2 cpu(s)
+Job is running on node(s): 
+gn05-02
+------------------------------------------------------
+WORKINFO:
+SLURM: job starting at           20:54-Thu-23/Jul/2020
+SLURM: sbatch is running on      login2
+SLURM: executing on cluster      ulysses2
+SLURM: executing on partition    gpu1
+SLURM: working directory is      /home/samadio/entropy
+SLURM: current home directory is /home/samadio
+
+JOBINFO:
+SLURM: job identifier is         199237
+SLURM: job name is               entropy_scaling
+
+NODEINFO:
+SLURM: number of nodes is        1
+SLURM: number of cpus/node is    2
+SLURM: number of gpus/node is    
+------------------------------------------------------
+Waiting for all the processes to finish...

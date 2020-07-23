@@ -1,11 +1,11 @@
 from math import log2 as log2
 from IQFT import *
-from jax import device_put
 import numpy as np
+import cupy as cp
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
-from jax.numpy.linalg import eigvalsh
+from cupy.linalg import eigvalsh
 
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
     data = np.ones(2 ** k) * 2 ** (- k / 2)
@@ -82,10 +82,13 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
         svds = svds ** 2
         return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
 
-    W = matrix_from_state_IQFT(state, chosen, notchosen)
+    W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
+    cp.cuda.Stream.null.synchronize()
     eig = eigvalsh(W.dot(W.T))
-    eig = eig[np.abs(eig) > 1e-5]
-    return - np.sum(eig * np.log2(eig))
+    cp.cuda.Stream.null.synchronize()
+    eig = eig[cp.abs(eig) > 1e-5]
+    cp.cuda.Stream.null.synchronize()
+    return - cp.sum(eig * np.log2(eig))
 
 # -----------------------------------------------------------------
 # unused functions

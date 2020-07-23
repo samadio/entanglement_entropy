@@ -7,7 +7,7 @@
 # ---- CPU resources configuration  ----  |  Clarifications at https://slurm.schedmd.com/mc_support.html
 #
 #SBATCH --ntasks=1                   # Number of MPI ranks (1 for MPI serial job)
-#SBATCH --cpus-per-task=10           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
+#SBATCH --cpus-per-task=2           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
 #SBATCH --nodes=1                    # Number of nodes
 #SBATCH --ntasks-per-node=1          # How many tasks on each node
 #SBATCH --ntasks-per-socket=1        # How many tasks on each socket
@@ -16,8 +16,8 @@
 #
 # ---- Other resources configuration (e.g. GPU) ----
 #
-#SBATCH --gpus=2                     # Total number of GPUs for the job (MAX: 2 x number of nodes, only available on gpu1 and gpu2)
-#[optional] #SBATCH --gpus-per-node=2            # Number of GPUs per node (MAX: 2, only available on gpu1 and gpu2)
+#SBATCH --gpus=1                     # Total number of GPUs for the job (MAX: 2 x number of nodes, only available on gpu1 and gpu2)
+#[optional] #SBATCH --gpus-per-node=1            # Number of GPUs per node (MAX: 2, only available on gpu1 and gpu2)
 #[optional] #SBATCH --gpus-per-task=1            # Number of GPUs per MPI rank (MAX: 2, only available on gpu1 and gpu2); to be used with --ntasks
 #
 # ---- Memory configuration ----
@@ -29,7 +29,7 @@
 #
 #[unconfig] #SBATCH --array=01-10    # Create a job array. Useful for multiple, similar jobs. To use, read this: https://slurm.schedmd.com/job_array.html
 #SBATCH --partition=gpu1,gpu2         # Partition (queue). Avail: regular1, regular2, long1, long2, wide1, wide2, gpu1, gpu2. Multiple partitions are possible.
-#SBATCH --time=00:10:00              # Time limit hrs:min:sec
+#SBATCH --time=03:00:00              # Time limit hrs:min:sec
 #SBATCH --output=%j.o%j              # Standard output log in TORQUE-style -- WARNING: %x requires a new enough SLURM. Use %j for regular jobs and %A-%a for array jobs
 #SBATCH --error=%j.e%j               # Standard error  log in TORQUE-style -- WARNING: %x requires a new enough SLURM. Use %j for regular jobs and %A-%a for array jobs
 
@@ -60,14 +60,9 @@ echo 'SLURM: number of gpus/node is    '$SLURM_GPUS_PER_NODE
 echo '------------------------------------------------------'
 
 
+cd Entropy/src
 
-cd entropy/Entropy/src
-
-export MKL_THREADING_LAYER="INTEL"
-export MKL_SERVICE_FORCE_INTEL=1
-export KMP_AFFINITY=verbose,granularity=fine,compact,1,0,explicit
-
-module load gnu7/7.3.1 gnu8/8.3.0 pgi/19.10 pgi/19.4 mkl/19.0.4.243
+module load gnu8/8.3.0 pgi/19.4
 module load intelpython3/3.6.8 cuda/10.1
 
 python3 scaling_cluster.py
