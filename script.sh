@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=entropy_scaling       # The name of your job, you'll se it in squeue.
+#SBATCH --job-name=8entropy       # The name of your job, you'll se it in squeue.
 #SBATCH --mail-type=ALL              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
 #SBATCH --mail-user=samadio@sissa.it    # Where to send the mail
 #
 # ---- CPU resources configuration  ----  |  Clarifications at https://slurm.schedmd.com/mc_support.html
 #
 #SBATCH --ntasks=1                   # Number of MPI ranks (1 for MPI serial job)
-#SBATCH --cpus-per-task=2           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
+#SBATCH --cpus-per-task=10           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
 #SBATCH --nodes=1                    # Number of nodes
 #SBATCH --ntasks-per-node=1          # How many tasks on each node
 #SBATCH --ntasks-per-socket=1        # How many tasks on each socket
@@ -29,7 +29,7 @@
 #
 #[unconfig] #SBATCH --array=01-10    # Create a job array. Useful for multiple, similar jobs. To use, read this: https://slurm.schedmd.com/job_array.html
 #SBATCH --partition=gpu1,gpu2         # Partition (queue). Avail: regular1, regular2, long1, long2, wide1, wide2, gpu1, gpu2. Multiple partitions are possible.
-#SBATCH --time=03:00:00              # Time limit hrs:min:sec
+#SBATCH --time=12:00:00              # Time limit hrs:min:sec
 #SBATCH --output=%j.o%j              # Standard output log in TORQUE-style -- WARNING: %x requires a new enough SLURM. Use %j for regular jobs and %A-%a for array jobs
 #SBATCH --error=%j.e%j               # Standard error  log in TORQUE-style -- WARNING: %x requires a new enough SLURM. Use %j for regular jobs and %A-%a for array jobs
 
@@ -65,7 +65,7 @@ cd Entropy/src
 module load gnu8/8.3.0 pgi/19.4
 module load intelpython3/3.6.8 cuda/10.1
 
-python3 scaling_cluster.py
+python3 main_cuda_dense_montecarlo.py
 
 echo "Waiting for all the processes to finish..."
 wait
