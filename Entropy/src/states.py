@@ -93,7 +93,7 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
     cp.cuda.Stream.null.synchronize()
     return cp.asnumpy(- cp.sum(eig * a))
 
-def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100) -> list:
+def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100, tol:float=None) -> list:
     """
         This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
         bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
@@ -103,12 +103,12 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
     :param N:       Number to be factorized
     :param maxiter: Maximum number of iterations at which Montecarlo method stops
     :param step:    step of Montecarlo method: at least 2 * steps iteration will be computed
+    :param tol:     Tolerance for convergence
     :return: S:     Entanglement entropy: S[k][1] will give entropy for (k+1)-th computation steps computed
                     on different bipartitions
     """
 
     L = aux.lfy(N)
-    # print("number of qubits: {0}+{1}".format(str(L), str(2 * L)))
 
     nonzeros_decimal_positions = aux.nonzeros_decimal(2 * L, N, Y)
     results = []
@@ -126,7 +126,7 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
             results.append([(True,True), [entanglement_entropy_from_state(current_state, chosen, False) \
                                    for chosen in combinations(considered_qubits, bipartition_size)]])
         else:
-            results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered))
+            results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol))
 
     ''' IQFT '''
     current_state = applyIQFT_circuit(L, current_state)
@@ -134,23 +134,25 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
         results.append(((True,True), [entanglement_entropy_from_state(current_state, chosen, False) \
                                for chosen in combinations(considered_qubits, bipartition_size)]))
     else:
-        results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered))
+        results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol))
 
     return results
 
 
-def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations_considered: list):
+def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations_considered: list, tol: float = None):
     """
         Description
     :param state:                       state of the system
     :param step:                        step of Montecarlo method
     :param maxiter:                     maximum number of iteration for Montecarlo method
     :param combinations_considered:     combinations considered by the Montecarlo method
+    :param tol:	    			Tolerance for convergence
     :return:                            results as list of entropies
     """
 
     mean_convergence = False
     var_convergence = False
+    tol_not_given = (tol == None)
     results = []
     for i in range(maxiter):
         current_bipartition = combinations_considered[i]
@@ -166,7 +168,8 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
             current_mean = cp.mean(cp.array(results))
             current_var = cp.var(cp.array(results), ddof=1)
 
-            tol = (i + 1) ** (- 1 / 2)
+            if tol_not_given: tol = (i + 1) ** (- 1 / 2)
+
             mean_convergence = cp.abs(previous_mean - current_mean) < tol
             var_convergence = cp.var(previous_var - current_var) < tol
             if mean_convergence and var_convergence: return (True,True), results

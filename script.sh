@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=4entropy       # The name of your job, you'll se it in squeue.
+#SBATCH --job-name=8_1percent       # The name of your job, you'll se it in squeue.
 #SBATCH --mail-type=ALL              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
 #SBATCH --mail-user=samadio@sissa.it    # Where to send the mail
 #
@@ -22,7 +22,7 @@
 #
 # ---- Memory configuration ----
 #
-#SBATCH --mem=20000mb                 # Memory per node (MAX: 63500 on the new ones, 40000 on the old ones); incompatible with --mem-per-cpu.
+#SBATCH --mem=5000mb                 # Memory per node (MAX: 63500 on the new ones, 40000 on the old ones); incompatible with --mem-per-cpu.
 #[optional] #SBATCH --mem-per-cpu=4000mb         # Memory per thread; incompatible with --mem
 #
 # ---- Partition, Walltime and Output ----
