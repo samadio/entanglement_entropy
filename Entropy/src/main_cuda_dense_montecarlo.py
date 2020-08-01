@@ -1,10 +1,7 @@
-from time import time
 from states import *
 
-total_start = time()
-
-numbers =[131] #, [21,33,66,131]
-maxiter = [900] #[100_000, 40_000, 11_000, 900]
+numbers = [15] #, [21,33,66,131]
+maxiter = [450_000] #[450_000, 40_000, 11_000, 900]
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 current_state = 0
