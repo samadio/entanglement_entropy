@@ -6,7 +6,7 @@ import cupy as cp
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
-from cupy.linalg import eigvalsh
+from cupy.linalg import eigvalsh as gpu_eigh
 from numpy.linalg import eigvalsh as eigh
 
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
@@ -66,7 +66,7 @@ def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list) ->n
     return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
 
 
-def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) -> float:
+def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gpu: bool = False) -> float:
     """
         Compute entanglement entropy of state according to chosen bipartition of qubits
 
@@ -82,27 +82,34 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
         svds = bip.sparsesvd(W, \
                              k=min(np.shape(W)) - 1, which='LM', return_singular_vectors=False)
         svds = svds ** 2
-        return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
+        return - np.sum([i * np.log2(i) for i in svds if i > 1e-6])
 
-    #W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
+    if gpu:
+        W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
+        cp.cuda.Stream.null.synchronize()
+        eig = gpu_eigh(W.dot(W.T))
+        cp.cuda.Stream.null.synchronize()
+        print(eig)
+        eig = eig[eig > 1e-5]
+        cp.cuda.Stream.null.synchronize()
+        print(eig)
+        a = cp.log2(eig)
+        cp.cuda.Stream.null.synchronize()
+        print(a)
+        print(eig * a)
+        return cp.asnumpy(- cp.sum(eig * a))
+
     W = matrix_from_state_IQFT(state, chosen, notchosen)
-    #cp.cuda.Stream.null.synchronize()
-    #eig = eigvalsh(W.dot(W.T))
     eig = eigh(W.dot(W.T))
-    #cp.cuda.Stream.null.synchronize()
     print(eig)
     eig = eig[eig > 1e-5]
-    #cp.cuda.Stream.null.synchronize()
     print(eig)
-    #a = cp.log2(eig)
     a = np.log2(eig)
-    #cp.cuda.Stream.null.synchronize()
     print(a)
     print(eig*a)
     return - np.sum(eig * a)
-    #return cp.asnumpy(- cp.sum(eig * a))
 
-def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100, tol:float=None) -> list:
+def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100, tol:float=None, gpu: bool = False) -> list:
     """
         This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
         bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
@@ -135,20 +142,20 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
             results.append([(True,True), [entanglement_entropy_from_state(current_state, chosen, False) \
                                    for chosen in combinations(considered_qubits, bipartition_size)]])
         else:
-            results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol))
+            results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol, gpu))
 
     ''' IQFT '''
     current_state = applyIQFT_circuit(L, current_state)
     if bip.number_of_bipartitions(3 * L) <= step:
-        results.append(((True,True), [entanglement_entropy_from_state(current_state, chosen, False) \
+        results.append(((True, True), [entanglement_entropy_from_state(current_state, chosen, False) \
                                for chosen in combinations(considered_qubits, bipartition_size)]))
     else:
-        results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol))
+        results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol, gpu))
 
     return results
 
 
-def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations_considered: list, tol: float = None):
+def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations_considered: list, tol: float = None, gpu: bool = False):
     """
         Description
     :param state:                       state of the system
@@ -161,11 +168,11 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
 
     mean_convergence = False
     var_convergence = False
-    tol_not_given = (tol == None)
     results = []
+
     for i in range(maxiter):
         current_bipartition = combinations_considered[i]
-        results.append(entanglement_entropy_from_state(state, current_bipartition, False))
+        results.append(entanglement_entropy_from_state(state, current_bipartition, sparse=False, gpu=gpu))
 
         # first step
         if i + 1 == step:
@@ -177,7 +184,8 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
             current_mean = cp.mean(cp.array(results))
             current_var = cp.var(cp.array(results), ddof=1)
 
-            if tol_not_given: tol = (i + 1) ** (- 1 / 2)
+            if tol is None:
+                tol = (i + 1) ** (- 1 / 2)
 
             mean_convergence = cp.abs(previous_mean - current_mean) < tol
             var_convergence = cp.var(previous_var - current_var) < tol
