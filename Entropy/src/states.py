@@ -7,6 +7,7 @@ import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
 from cupy.linalg import eigvalsh
+from numpy.linalg import eigvalsh as eigh
 
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
     data = np.ones(2 ** k) * 2 ** (- k / 2)
@@ -83,15 +84,23 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True) ->
         svds = svds ** 2
         return - np.sum([i * np.log2(i) for i in svds if i > 1e-16])
 
-    W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
-    cp.cuda.Stream.null.synchronize()
-    eig = eigvalsh(W.dot(W.T))
-    cp.cuda.Stream.null.synchronize()
+    #W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
+    W = matrix_from_state_IQFT(state, chosen, notchosen)
+    #cp.cuda.Stream.null.synchronize()
+    #eig = eigvalsh(W.dot(W.T))
+    eig = eigh(W.dot(W.T))
+    #cp.cuda.Stream.null.synchronize()
+    print(eig)
     eig = eig[eig > 1e-5]
-    cp.cuda.Stream.null.synchronize()
-    a = cp.log2(eig)
-    cp.cuda.Stream.null.synchronize()
-    return cp.asnumpy(- cp.sum(eig * a))
+    #cp.cuda.Stream.null.synchronize()
+    print(eig)
+    #a = cp.log2(eig)
+    a = np.log2(eig)
+    #cp.cuda.Stream.null.synchronize()
+    print(a)
+    print(eig*a)
+    return - np.sum(eig * a)
+    #return cp.asnumpy(- cp.sum(eig * a))
 
 def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100, tol:float=None) -> list:
     """

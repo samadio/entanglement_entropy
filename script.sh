@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 #SBATCH --job-name=5_1percent       # The name of your job, you'll se it in squeue.
-#SBATCH --mail-type=ALL              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
+#SBATCH --mail-type=NONE              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
 #SBATCH --mail-user=samadio@sissa.it    # Where to send the mail
 #
 # ---- CPU resources configuration  ----  |  Clarifications at https://slurm.schedmd.com/mc_support.html
 #
 #SBATCH --ntasks=1                   # Number of MPI ranks (1 for MPI serial job)
-#SBATCH --cpus-per-task=4           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
+#SBATCH --cpus-per-task=40           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
 #SBATCH --nodes=1                    # Number of nodes
 #SBATCH --ntasks-per-node=1          # How many tasks on each node
 #SBATCH --ntasks-per-socket=1        # How many tasks on each socket
@@ -62,7 +62,7 @@ echo '------------------------------------------------------'
 
 cd Entropy/src
 
-module load gnu8/8.3.0 pgi/19.4
+module load gnu8/8.3.0
 module load intelpython3/3.6.8 cuda/10.1
 
 python3 main_cuda_dense_montecarlo.py
