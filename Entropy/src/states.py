@@ -89,24 +89,16 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
         cp.cuda.Stream.null.synchronize()
         eig = gpu_eigh(W.dot(W.T))
         cp.cuda.Stream.null.synchronize()
-        print(eig)
         eig = eig[eig > 1e-5]
         cp.cuda.Stream.null.synchronize()
-        print(eig)
         a = cp.log2(eig)
         cp.cuda.Stream.null.synchronize()
-        print(a)
-        print(eig * a)
         return cp.asnumpy(- cp.sum(eig * a))
 
     W = matrix_from_state_IQFT(state, chosen, notchosen)
     eig = eigh(W.dot(W.T))
-    print(eig)
     eig = eig[eig > 1e-5]
-    print(eig)
     a = np.log2(eig)
-    print(a)
-    print(eig*a)
     return - np.sum(eig * a)
 
 def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100, tol:float=None, gpu: bool = False) -> list:
@@ -188,7 +180,7 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
                 tol = (i + 1) ** (- 1 / 2)
 
             mean_convergence = cp.abs(previous_mean - current_mean) < tol
-            var_convergence = cp.var(previous_var - current_var) < tol
+            var_convergence = cp.abs(previous_var - current_var) < tol
             if mean_convergence and var_convergence: return (True,True), results
             previous_mean = current_mean
             previous_var = current_var
