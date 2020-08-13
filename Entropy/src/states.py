@@ -9,6 +9,8 @@ from auxiliary import auxiliary as aux, bipartitions as bip
 #from cupy.linalg import eigvalsh as gpu_eigh
 from numpy.linalg import eigvalsh as eigh
 
+from time import time
+
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
     data = np.ones(2 ** k) * 2 ** (- k / 2)
     col = np.zeros(2 ** k)
@@ -85,8 +87,15 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
         return - np.sum([i * np.log2(i) for i in svds if i > 1e-6])
 
     if gpu:
-        W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
+        start = time()
+        W = matrix_from_state_IQFT(state, chosen, notchosen)
+        print("Mapping time: ", time() - start)
+        start = time()
+        W = cp.array(W)
+        print("Transfer time: ", time() - start)
+        start = time()
         cp.cuda.Stream.null.synchronize()
+        print("Sync time: ", time() - start)
         eig = gpu_eigh(W.dot(W.T))
         cp.cuda.Stream.null.synchronize()
         eig = eig[eig > 1e-5]
