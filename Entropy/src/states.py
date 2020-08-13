@@ -87,11 +87,21 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
         return - np.sum([i * np.log2(i) for i in svds if i > 1e-6])
 
     if gpu:
-        W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
+        start = time()
+        W = matrix_from_state_IQFT(state, chosen, notchosen)
+        print("Remapping time: ", time() - start)
+        start = time()
+        W = cp.array(W)
+        cp.cuda.Stream.null.synchronize()
+        print("Transfer time", time() - start)
+        start = time()
         eig = gpu_eigh(W.dot(W.T))
         eig = eig[eig > 1e-5]
         a = cp.log2(eig)
-        return cp.asnumpy(- cp.sum(eig * a))
+        res = cp.asnumpy(- cp.sum(eig * a))
+        cp.cuda.Stream.null.synchronize()
+        print("Compute time", time() - start)
+        return res
 
     W = matrix_from_state_IQFT(state, chosen, notchosen)
     eig = eigh(W.dot(W.T))
@@ -124,6 +134,7 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
 
     ''' Modular exponentiation  '''
     for k in range(1, 2 * L + 1):
+        print("k =", k)
 
         current_state = construct_modular_state(k, L, nonzeros_decimal_positions[:2 ** k])
 
