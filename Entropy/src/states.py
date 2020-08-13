@@ -2,11 +2,11 @@ from itertools import combinations as combinations
 from math import log2 as log2
 from IQFT import *
 import numpy as np
-#import cupy as cp
+import cupy as cp
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
-#from cupy.linalg import eigvalsh as gpu_eigh
+from cupy.linalg import eigvalsh as gpu_eigh
 from numpy.linalg import eigvalsh as eigh
 
 from time import time
@@ -87,21 +87,10 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
         return - np.sum([i * np.log2(i) for i in svds if i > 1e-6])
 
     if gpu:
-        start = time()
-        W = matrix_from_state_IQFT(state, chosen, notchosen)
-        print("Mapping time: ", time() - start)
-        start = time()
-        W = cp.array(W)
-        print("Transfer time: ", time() - start)
-        start = time()
-        cp.cuda.Stream.null.synchronize()
-        print("Sync time: ", time() - start)
+        W = cp.array(matrix_from_state_IQFT(state, chosen, notchosen))
         eig = gpu_eigh(W.dot(W.T))
-        cp.cuda.Stream.null.synchronize()
         eig = eig[eig > 1e-5]
-        cp.cuda.Stream.null.synchronize()
         a = cp.log2(eig)
-        cp.cuda.Stream.null.synchronize()
         return cp.asnumpy(- cp.sum(eig * a))
 
     W = matrix_from_state_IQFT(state, chosen, notchosen)
