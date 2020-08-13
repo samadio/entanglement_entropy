@@ -2,11 +2,11 @@ from itertools import combinations as combinations
 from math import log2 as log2
 from IQFT import *
 import numpy as np
-import cupy as cp
+#import cupy as cp
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
-from cupy.linalg import eigvalsh as gpu_eigh
+#from cupy.linalg import eigvalsh as gpu_eigh
 from numpy.linalg import eigvalsh as eigh
 
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:

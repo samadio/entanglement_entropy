@@ -7,7 +7,7 @@ from auxiliary import auxiliary as aux
 from qiskit.execute import execute
 from qiskit.circuit.quantumcircuit import QuantumCircuit
 from qiskit.aqua.circuits import FourierTransformCircuits as QFT
-from qiskit_qcgpu_provider import QCGPUProvider
+#from qiskit_qcgpu_provider import QCGPUProvider
 
 def apply_IQFT(L: int, current_state: coo_matrix) -> np.ndarray:
     """
