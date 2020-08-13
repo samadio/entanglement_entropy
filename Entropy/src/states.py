@@ -101,7 +101,7 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
     a = np.log2(eig)
     return - np.sum(eig * a)
 
-def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100, tol:float=None, gpu: bool = False) -> list:
+def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 100, tol:float=None, gpu: bool = False, sparse:bool = True) -> list:
     """
         This function will return an approximation of bipartite entanglement entropy in Shor's Algorithm for balanced
         bipartitions. The results will be given for all the computational steps k = [1, 2L + 1]. Montecarlo methods are
@@ -122,32 +122,36 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
     results = []
     current_state = 0
 
+    bipartitions = [[bip.random_bipartition(range(k + L), (k + L) // 2) for j in range(maxiter)] for k in range(2 * L)]
+
     ''' Modular exponentiation  '''
     for k in range(1, 2 * L + 1):
-        current_state = construct_modular_state(k, L, nonzeros_decimal_positions[:2 ** k]).toarray().reshape(
-            2 ** (k + L))
-        considered_qubits = range(k + L)
-        bipartition_size = (k + L) // 2
-        combinations_considered = [bip.random_bipartition(considered_qubits, bipartition_size) for j in range(maxiter)]
+
+        current_state = construct_modular_state(k, L, nonzeros_decimal_positions[:2 ** k])
+
+        if not sparse: current_state = current_state.toarray().reshape(2 ** (k + L))
+        combinations_considered = bipartitions[k - 1]
 
         if bip.number_of_bipartitions(k + L) <= step:
             results.append([(True,True), [entanglement_entropy_from_state(current_state, chosen, False) \
                                    for chosen in combinations(considered_qubits, bipartition_size)]])
         else:
-            results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol, gpu))
+            results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol=tol, gpu=gpu, sparse=sparse))
 
     ''' IQFT '''
+    if sparse: current_state = current_state.toarray().reshape(2 ** (k + L))
+    
     current_state = applyIQFT_circuit(L, current_state)
     if bip.number_of_bipartitions(3 * L) <= step:
-        results.append(((True, True), [entanglement_entropy_from_state(current_state, chosen, False) \
+        results.append(((True, True), [entanglement_entropy_from_state(current_state, chosen, False, sparse=sparse, gpu=gpu) \
                                for chosen in combinations(considered_qubits, bipartition_size)]))
     else:
-        results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol, gpu))
+        results.append(montecarlo_simulation(current_state, step, maxiter, bipartitions[-1], tol=tol, gpu=gpu, sparse=sparse))
 
     return results
 
 
-def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations_considered: list, tol: float = None, gpu: bool = False):
+def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations_considered: list, tol: float = None, gpu: bool = False, sparse=False):
     """
         Description
     :param state:                       state of the system
@@ -161,26 +165,29 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
     mean_convergence = False
     var_convergence = False
     results = []
+    
+    if gpu: pack = cp
+    else: pack = np
 
     for i in range(maxiter):
         current_bipartition = combinations_considered[i]
-        results.append(entanglement_entropy_from_state(state, current_bipartition, sparse=False, gpu=gpu))
+        results.append(entanglement_entropy_from_state(state, current_bipartition, sparse=sparse, gpu=gpu))
 
         # first step
         if i + 1 == step:
-            previous_mean = cp.mean(cp.array(results))
-            previous_var = cp.var(cp.array(results), ddof=1)
+            previous_mean = pack.mean(pack.array(results))
+            previous_var = pack.var(pack.array(results), ddof=1)
             continue
 
         if i + 1 % step == 0:
-            current_mean = cp.mean(cp.array(results))
-            current_var = cp.var(cp.array(results), ddof=1)
+            current_mean = pack.mean(pack.array(results))
+            current_var = pack.var(pack.array(results), ddof=1)
 
             if tol is None:
                 tol = (i + 1) ** (- 1 / 2)
 
-            mean_convergence = cp.abs(previous_mean - current_mean) < tol
-            var_convergence = cp.abs(previous_var - current_var) < tol
+            mean_convergence = pack.abs(previous_mean - current_mean) < tol
+            var_convergence = pack.abs(previous_var - current_var) < tol
             if mean_convergence and var_convergence: return (True,True), results
             previous_mean = current_mean
             previous_var = current_var

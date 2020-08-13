@@ -5,13 +5,13 @@ from auxiliary.bipartitions import random_bipartition
 
 L = 8
 k = 8
-N = 129
+N = 126
 Y = 13
 
 considered_qubits = range(k+L)
 bipartition_size = (k+L) // 2
 
-maxiter = 10
+maxiter = 20
  
 files = [open("/home/samadio/test_L_"+str(L)+"_N_"+str(N)+"_results.py", "a+")]
 
