@@ -9,7 +9,7 @@ from qiskit.circuit.quantumcircuit import QuantumCircuit
 from qiskit.aqua.circuits import FourierTransformCircuits as QFT
 #from qiskit_qcgpu_provider import QCGPUProvider
 
-def apply_IQFT(L: int, current_state: coo_matrix) -> np.ndarray:
+def apply_IQFT(L: int, current_state: np.array) -> np.ndarray:
     """
         apply IQFT to control target using different methods depending on number of qubits
     :param L: number of qubits in target register
@@ -17,9 +17,9 @@ def apply_IQFT(L: int, current_state: coo_matrix) -> np.ndarray:
     :return: state after IQFT on control register
     """
     if L < 6:
-        return applyIQFT_huge(L, current_state).toarray().reshape(2 ** (3 * L))
+        return applyIQFT_huge(L, current_state).reshape(2 ** (3 * L))
     else:
-        return applyIQFT_circuit(L, current_state.toarray().reshape(2 ** (3 * L)))
+        return applyIQFT_circuit(L, current_state)
 
 
 def applyIQFT_circuit(L: int, current_state: np.ndarray) -> np.ndarray:

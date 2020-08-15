@@ -2,14 +2,61 @@ from itertools import combinations as combinations
 from math import log2 as log2
 from IQFT import *
 import numpy as np
-import cupy as cp
 import scipy
 from scipy.sparse import identity as sparse_identity
 from auxiliary import auxiliary as aux, bipartitions as bip
-from cupy.linalg import eigvalsh as gpu_eigh
 from numpy.linalg import eigvalsh as eigh
+from numba import njit, prange
+import itertools
 
-from time import time
+try:
+    from cupy.linalg import eigvalsh as gpu_eigh
+    import cupy as cp
+except:
+    pass
+
+
+@njit(parallel=True)
+def first_column(chosens: np.array, n_rows: int, binary_combinations: np.array) -> np.array:
+    results = np.zeros(n_rows)
+    powers = np.power(2.0, np.flip(chosens))
+    for c in prange(n_rows):
+        results[c] = np.dot(powers, binary_combinations[c])
+    return results
+
+
+@njit(parallel=True)
+def col_gaps(notchosens: np.array, n_cols: int, binary_combinations: np.array) -> np.array:
+    results = np.zeros(n_cols)
+    powers = np.power(2.0, np.flip(notchosens))
+    for c in prange(n_cols):
+        results[c] = np.dot(powers, binary_combinations[c])
+    return results
+
+
+@njit(parallel=True)
+def get_density_matrix_from_W(W: np.array) -> np.array:
+    return np.dot(W, np.conj(W).T)
+
+
+def density_matrix_from_state_numba(state: np.ndarray, chosen: list, notchosen: list) -> np.ndarray:
+    n_rows = 2 ** len(chosen)
+    n_cols = 2 ** len(notchosen)
+    ch = np.sort(chosen)
+    nch = np.sort(notchosen)
+
+    binary_combinations = np.array(list(map(list, itertools.product([0, 1], repeat=len(ch)))), dtype=float)
+    first_col_idx = np.array([first_column(np.array(ch), n_rows, binary_combinations)]).astype(int)
+
+    binary_combinations = np.array(list(map(list, itertools.product([0, 1], repeat=len(nch)))), dtype=float)
+    gaps = col_gaps(np.array(nch), n_cols, binary_combinations).astype(int)
+
+    mappa = np.repeat(first_col_idx.T, n_cols, axis=1)
+    mappa = mappa + gaps
+    W = state[mappa]
+    return get_density_matrix_from_W(W)
+
+
 
 def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) -> bip.coo_matrix:
     data = np.ones(2 ** k) * 2 ** (- k / 2)
@@ -43,7 +90,7 @@ def matrix_from_state_modular(state: scipy.sparse.coo_matrix, chosen: list, notc
 
 
 #matrix from states can be reunited if I decide to store the state directly as np.ndarray
-def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list) ->np.ndarray:
+def density_matrix_from_state_dense(state: np.ndarray, chosen: list, notchosen: list) ->np.ndarray:
     """
         Construct and return matrix W s.t. W.dot(W.T)==reduced density matrix for state after IQFT
 
@@ -52,21 +99,7 @@ def matrix_from_state_IQFT(state: np.ndarray, chosen: list, notchosen: list) ->n
     :param notchosen: qubits to trace away
     :return:  W
     """
-    
-    nonzero_idx = np.flatnonzero(state)
-    qubits = int(log2(len(state)))
-
-    nonzero_idx_binary = [aux.decimal_to_binary(idx, qubits) for idx in nonzero_idx]
-    row = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_idx_binary]
-    col = [aux.to_decimal((aux.select_components(i, notchosen))) for i in nonzero_idx_binary]
-
-    flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(row, col)]
-
-    W = np.zeros(len(state), dtype=complex)
-    for new_idx, old_idx in zip(flatrow_idx, nonzero_idx):
-        W[new_idx] = state[old_idx]
-    return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
-
+    return density_matrix_from_state_numba(state, chosen, notchosen)
 
 def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gpu: bool = False) -> float:
     """
@@ -87,25 +120,16 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
         return - np.sum([i * np.log2(i) for i in svds if i > 1e-6])
 
     if gpu:
-        start = time()
-        W = matrix_from_state_IQFT(state, chosen, notchosen)
-        print("Remapping time: ", time() - start)
-        start = time()
-        W = cp.array(W)
+        rho = cp.array(density_matrix_from_state_dense(state, chosen, notchosen))
         cp.cuda.Stream.null.synchronize()
-        print("Transfer time", time() - start)
-        start = time()
-        eig = gpu_eigh(W.dot(W.T))
+        eig = gpu_eigh(rho)
         eig = eig[eig > 1e-5]
         a = cp.log2(eig)
-        res = cp.asnumpy(- cp.sum(eig * a))
-        cp.cuda.Stream.null.synchronize()
-        print("Compute time", time() - start)
-        return res
+        return cp.asnumpy(- cp.sum(eig * a))
 
-    W = matrix_from_state_IQFT(state, chosen, notchosen)
-    eig = eigh(W.dot(W.T))
-    eig = eig[eig > 1e-5]
+    rho = density_matrix_from_state_dense(state, chosen, notchosen)
+    eig = eigh(rho)
+    eig = eig[eig > 1e-15]
     a = np.log2(eig)
     return - np.sum(eig * a)
 
@@ -120,13 +144,20 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
     :param maxiter: Maximum number of iterations at which Montecarlo method stops
     :param step:    step of Montecarlo method: at least 2 * steps iteration will be computed
     :param tol:     Tolerance for convergence
+    :param gpu:     Whether or not a GPU with CUDA will be used, if provided. Only available for dense representation
+    :param sparse:     Whether or not to use sparse representation
     :return: S:     Entanglement entropy: S[k][1] will give entropy for (k+1)-th computation steps computed
                     on different bipartitions
     """
 
+    if gpu:
+        from numba import cuda
+        cuda.select_device(0)
+
+
     L = aux.lfy(N)
 
-    nonzeros_decimal_positions = aux.nonzeros_decimal(2 * L, N, Y)
+    nonzeros_decimal_positions = aux.nonzeros_decimal(2 * L, Y, N)
     results = []
     current_state = 0
 
@@ -134,7 +165,6 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
 
     ''' Modular exponentiation  '''
     for k in range(1, 2 * L + 1):
-        print("k =", k)
 
         current_state = construct_modular_state(k, L, nonzeros_decimal_positions[:2 ** k])
 
@@ -142,18 +172,18 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
         combinations_considered = bipartitions[k - 1]
 
         if bip.number_of_bipartitions(k + L) <= step:
-            results.append([(True,True), [entanglement_entropy_from_state(current_state, chosen, False) \
-                                   for chosen in combinations(considered_qubits, bipartition_size)]])
+            results.append([(True, True), [entanglement_entropy_from_state(current_state, chosen, False) \
+                                            for chosen in combinations(range(k + L), (k + L) // 2)]])
         else:
             results.append(montecarlo_simulation(current_state, step, maxiter, combinations_considered, tol=tol, gpu=gpu, sparse=sparse))
 
     ''' IQFT '''
     if sparse: current_state = current_state.toarray().reshape(2 ** (k + L))
     
-    current_state = applyIQFT_circuit(L, current_state)
+    current_state = apply_IQFT(L, current_state)
     if bip.number_of_bipartitions(3 * L) <= step:
-        results.append(((True, True), [entanglement_entropy_from_state(current_state, chosen, False, sparse=sparse, gpu=gpu) \
-                               for chosen in combinations(considered_qubits, bipartition_size)]))
+        results.append(((True, True), [entanglement_entropy_from_state(current_state, chosen, sparse=sparse, gpu=gpu) \
+                                        for chosen in combinations(range(k + L), (k + L) // 2)]))
     else:
         results.append(montecarlo_simulation(current_state, step, maxiter, bipartitions[-1], tol=tol, gpu=gpu, sparse=sparse))
 
@@ -167,7 +197,9 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
     :param step:                        step of Montecarlo method
     :param maxiter:                     maximum number of iteration for Montecarlo method
     :param combinations_considered:     combinations considered by the Montecarlo method
-    :param tol:	    			Tolerance for convergence
+    :param tol:	    			        Tolerance for convergence
+    :param gpu:                         Whether or not a GPU with CUDA will be used, if provided. Only available for dense representation
+    :param sparse:                      Whether or not to use sparse representation
     :return:                            results as list of entropies
     """
 

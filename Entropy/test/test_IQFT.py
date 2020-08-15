@@ -21,31 +21,23 @@ class Test(TestCase):
         np.testing.assert_array_almost_equal(1 / 2 * np.array([1, -1j, -1, 1j]), IQFT_row)
 
     def test_qiskit_IQFT_correct(self):
-        N = 21
-        Y = 13
-        L = 5
-        k = 2 * L
-        nonzeros = aux.nonzeros_decimal(k, Y, N)
-        state = construct_modular_state(k, L, nonzeros)
-        qfinal = applyIQFT_circuit(L, state.toarray())
 
-        IQFT_matrix_2L = coo_matrix(operator_IQFT(2 * L))
-        operator = scipy.sparse.kron(IQFT_matrix_2L, scipy.eye(2 ** L))
-        print(operator.shape)
-        print(len(operator.nonzero()[0]) == 2 ** (5 * L))
-        exact = operator.dot(state)
-        print(100 * len(exact.nonzero()[0]) / 2 ** (3 * L))
-        exact = exact.toarray().reshape(2 ** (3 * L))
+        N = 25
+        max_test_size = 100
+        random_coprimes = np.unique([aux.coprime(N) for i in range(max_test_size)])
+        for Y in random_coprimes:
+            L = aux.lfy(N)
+            k = 2 * L
+            nonzeros = aux.nonzeros_decimal(k, Y, N)
+            state = construct_modular_state(k, L, nonzeros)
+            qfinal = applyIQFT_circuit(L, state.toarray())
 
-        #exact[np.abs(exact) < 1e-14] = 0
-        #qfinal[np.abs(qfinal) < 1e-14] = 0
+            IQFT_matrix_2L = coo_matrix(operator_IQFT(2 * L))
+            operator = scipy.sparse.kron(IQFT_matrix_2L, scipy.eye(2 ** L))
+            exact = operator.dot(state)
+            exact = exact.toarray().reshape(2 ** (3 * L))
 
-        #exact = np.sort_complex(exact)
-        #final = np.sort_complex(qfinal)
-        #print(exact[-10:-1])
-        #print(final[-10:-1])
-
-        np.testing.assert_array_almost_equal(exact, qfinal)
+            np.testing.assert_array_almost_equal(exact, qfinal)
 
     def test_myIQFT_operator_correct(self):
         nqubits = 4

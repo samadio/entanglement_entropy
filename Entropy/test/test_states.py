@@ -1,6 +1,4 @@
 from unittest import TestCase
-
-from auxiliary import auxiliary as aux
 from auxiliary.bipartitions import random_bipartition, notchosen
 from auxiliary.bipartitions import entropy as binentropy
 from states import *
@@ -58,15 +56,16 @@ class Test(TestCase):
             self.assertTrue(np.abs(binary_entropy - state_entropy) < 1e-14)
 
     def test_myentropy_equal_qentropy(self):
-        k = 8
-        L = 5
+        k = 10
         Y = 13
-        N = 21
+        N = 33
+        L = aux.lfy(N)
+
         number_of_qubits = k + L
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         state = construct_modular_state(k, L, nonzeros_decimal)
         qstate = Statevector(state.toarray())
-        tries = 30
+        tries = 100
         for i in range(tries):
             chosen_qubits = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
             notchosen_qubits = notchosen(chosen_qubits, number_of_qubits)
