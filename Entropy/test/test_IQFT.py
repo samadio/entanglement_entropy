@@ -2,7 +2,7 @@ from unittest import TestCase
 from states import *
 from math import sqrt
 from qutip.qip.algorithms.qft import qft
-from scipy.sparse import kron
+import scipy
 
 
 class Test(TestCase):
@@ -23,7 +23,7 @@ class Test(TestCase):
     def test_qiskit_IQFT_correct(self):
 
         N = 25
-        max_test_size = 100
+        max_test_size = 30
         random_coprimes = np.unique([aux.coprime(N) for i in range(max_test_size)])
         for Y in random_coprimes:
             L = aux.lfy(N)
@@ -48,7 +48,7 @@ class Test(TestCase):
     def test_tensor_zero(self):
         matrix = scipy.sparse.random(2 ** 5, 2 ** 5)
 
-        new_matrix = kron(scipy.eye(1), matrix).toarray()
+        new_matrix = scipy.sparse.kron(scipy.eye(1), matrix).toarray()
         np.testing.assert_array_almost_equal(matrix.toarray(), new_matrix)
 
     def test_qiskit_order(self):

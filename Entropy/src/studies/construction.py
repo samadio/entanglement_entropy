@@ -82,7 +82,7 @@ for iid, Y in enumerate(Y_list):
         notchosen = bip.notchosen(chosen, k + L)
 
         start = time()
-        rho = density_matrix_from_state_improved(or_state, chosen, notchosen)
+        rho = density_matrix_from_state(or_state, chosen, notchosen)
         l = eigvalsh(rho) #np.asarray(eigvalsh(rho))
         l = l[l > 1e-15]
         myreduced = -np.sum(l * np.log2(l))

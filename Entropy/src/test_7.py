@@ -1,4 +1,4 @@
-import numpy as np
+from entropies import montecarlo_simulation
 from states import *
 from auxiliary.auxiliary import nonzeros_decimal
 from auxiliary.bipartitions import random_bipartition

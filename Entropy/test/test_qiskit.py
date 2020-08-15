@@ -10,31 +10,31 @@ class Test(TestCase):
         # W = 1 / 2 [ [0,1] , [1,0], [0,0], [1,1] ]
         state = np.array([0, 1 / 2, 1 / 2, 0, 0, 1 / 2, 0, 1 / 2])
         chosen = [0, 2]
+        notchosen = [1]
         nonzero = [1, 2, 5, 7]
         nonzero_binary = [aux.decimal_to_binary(i, 3) for i in nonzero]
 
-        W = bip.create_w_from_binary(chosen, bip.notchosen(chosen, 3), nonzero_binary)
-        myreduced = W.dot(W.T).toarray().tolist()
+        myreduced = density_matrix_from_state_dense(state, chosen, notchosen).tolist()
         expected = [[1 / 4, 0, 0, 1 / 4], [0, 1 / 4, 0, 1 / 4], [0, 0, 0, 0], [1 / 4, 1 / 4, 0, 1 / 2]]
         self.assertListEqual(myreduced, expected)
-        qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), [1]).data. \
+        qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), notchosen).data. \
             real.astype(dtype=float, copy=False).tolist()
         self.assertListEqual(qreduced, expected)
 
-        chosen = [1, 2]
-        W = bip.create_w_from_binary(chosen, bip.notchosen(chosen, 3), nonzero_binary)
-        myreduced = W.dot(W.T).toarray().tolist()
-        qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), [2]).data. \
+        chosen = [0, 1]
+        notchosen = [2]
+        myreduced = density_matrix_from_state_dense(state, chosen, notchosen).tolist()
+        qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), notchosen).data. \
             real.astype(dtype=float, copy=False).tolist()
         expected = [[0., 0., 0., 0.], [0., 1 / 2, 1 / 4, 1 / 4], [0., 1 / 4, 1 / 4, 0.], [0., 1 / 4, 0., 1 / 4]]
         self.assertListEqual(myreduced, expected)
         self.assertListEqual(qreduced, expected)
 
-        sparse_state = bip.coo_matrix(([1 / 2, 1 / 2, 1 / 2, 1 / 2], (nonzero, [0, 0, 0, 0])), shape=(8, 1)).tocsr()
-        chosen = [0, 1]
-        W = matrix_from_state_modular(sparse_state, chosen, bip.notchosen(chosen, 3))
-        myreduced = W.dot(W.T).toarray().tolist()
-        qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), [0]).data. \
+        state = bip.coo_matrix(([1 / 2, 1 / 2, 1 / 2, 1 / 2], (nonzero, [0, 0, 0, 0])), shape=(8, 1)).toarray().flatten()
+        chosen = [1, 2]
+        notchosen = [0]
+        myreduced = density_matrix_from_state_dense(state, chosen, notchosen).tolist()
+        qreduced = qt.quantum_info.partial_trace(qt.quantum_info.Statevector(state), notchosen).data. \
             real.astype(dtype=float, copy=False).tolist()
         expected = [[1 / 4, 0., 1 / 4, 1 / 4], [0., 1 / 4, 0., 0.], [1 / 4, 0., 1 / 4, 1 / 4],
                     [1 / 4, 0., 1 / 4, 1 / 4]]

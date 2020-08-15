@@ -28,33 +28,8 @@ def notchosen(chosen: list, system_size: int) -> list:
 def number_of_bipartitions(size: int) -> int:
     return bin_coeff(size, size / 2, exact=True)
 
-
-def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list, sparse: bool = True):
-    """
-        Return W s.t. W dot W.T is reduced density matrix according to selected bipartition
-
-    :param chosen:      list of chosen qubits
-    :param notchosen:   list of qubits to trace away
-    :param nonzero_binary:  list s.t. nonzero_binary[j] = j-th index in which the state is nonzero, represented as
-                            binary string:   psi = [0,1,0,1,0] -> nonzero_binary = ['001','011']
-    :return: W
-    """
-
-    # row idxs of nonzero elements in W
-    rows = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_binary]
-    cols = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
-
-    number_of_nonzeros = len(nonzero_binary)
-    norm = number_of_nonzeros ** (- 1 / 2)
-
-    data = np.ones(number_of_nonzeros) * norm
-    if sparse: return coo_matrix((data, (rows, cols)), shape=(2 ** len(chosen), 2 ** len(not_chosen))).tocsc()
-    flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(rows, cols)]
-    W = np.zeros(2 ** (len(chosen) + len(notchosen)))
-    W[flatrow_idx] = norm
-    return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
-
-
+#unused functions
+'''
 def entropy(k: int, L: int, chosen: list, nonzero_binary: list, sparse: bool = True) -> float:
     """fixed k and bipartition"""
 
@@ -129,3 +104,29 @@ def montecarlo_single_k(k: int, L: int, nonzero_binary: list, step: int, maxiter
 #             # print(str(k)+"-th computational step done")
 #
 #     return results
+
+def create_w_from_binary(chosen: list, not_chosen: list, nonzero_binary: list, sparse: bool = True):
+    """
+        Return W s.t. W dot np.conj(W).T is reduced density matrix according to selected bipartition
+
+    :param chosen:      list of chosen qubits
+    :param notchosen:   list of qubits to trace away
+    :param nonzero_binary:  list s.t. nonzero_binary[j] = j-th index in which the state is nonzero, represented as
+                            binary string:   psi = [0,1,0,1,0] -> nonzero_binary = ['001','011']
+    :return: W
+    """
+
+    # row idxs of nonzero elements in W
+    rows = [aux.to_decimal(aux.select_components(i, chosen)) for i in nonzero_binary]
+    cols = [aux.to_decimal((aux.select_components(i, not_chosen))) for i in nonzero_binary]
+
+    number_of_nonzeros = len(nonzero_binary)
+    norm = number_of_nonzeros ** (- 1 / 2)
+
+    data = np.ones(number_of_nonzeros) * norm
+    if sparse: return coo_matrix((data, (rows, cols)), shape=(2 ** len(chosen), 2 ** len(not_chosen))).tocsc()
+    flatrow_idx = [i * 2 ** len(notchosen) + j for i, j in zip(rows, cols)]
+    W = np.zeros(2 ** (len(chosen) + len(notchosen)))
+    W[flatrow_idx] = norm
+    return W.reshape((2 ** len(chosen), 2 ** len(notchosen)))
+'''

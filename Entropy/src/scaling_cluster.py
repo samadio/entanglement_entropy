@@ -1,9 +1,10 @@
 from time import time
 from states import *
+from entropies import *
 
 total_start = time()
 
-numbers = [21, 33, 66, 131] #, 261]
+numbers = [21, 33, 66, 131]
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 current_state = 0
