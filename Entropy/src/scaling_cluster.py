@@ -4,7 +4,7 @@ from entropies import *
 
 total_start = time()
 
-numbers = [21, 33, 66, 131]
+numbers = [23, 35, 68, 132]
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 current_state = 0
@@ -32,7 +32,7 @@ for i, N in enumerate(numbers):
 total_time = time() - start
 
 files = [open("/home/samadio/entropy/Entropy/times_L=" + str(L) + ".txt", 'a+') for L in L_list]
-#files = [open("times_L=" + str(L) + ".txt", 'a+') for L in L_list]
+
 [print(str(number_of_bip) + " bipartitions\nMeans: \n" + str(means[i]), file=files[i]) for i in range(len(numbers))]
 [print("stds: \n" + str(stds[i]), file=files[i]) for i in range(len(numbers))]
 print("total time " + str(total_time), file=files[0])
