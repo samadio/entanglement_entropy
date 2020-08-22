@@ -61,10 +61,6 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
                     on different bipartitions
     """
 
-    if gpu:
-        from numba import cuda
-        cuda.select_device(0)
-
     L = aux.lfy(N)
 
     nonzeros_decimal_positions = aux.nonzeros_decimal(2 * L, Y, N)

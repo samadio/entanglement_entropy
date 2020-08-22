@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=constr_10      # The name of your job, you'll se it in squeue.
+#SBATCH --job-name=N71_100k      # The name of your job, you'll se it in squeue.
 #SBATCH --mail-type=END              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
 #SBATCH --mail-user=samadio@sissa.it    # Where to send the mail
 #
 # ---- CPU resources configuration  ----  |  Clarifications at https://slurm.schedmd.com/mc_support.html
 #
 #SBATCH --ntasks=1                   # Number of MPI ranks (1 for MPI serial job)
-#SBATCH --cpus-per-task=40           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
+#SBATCH --cpus-per-task=20           # Number of threads per MPI rank (MAX: 2x32 cores on _partition_2, 2x20 cores on _partition_1)
 #SBATCH --nodes=1                    # Number of nodes
 #SBATCH --ntasks-per-node=1          # How many tasks on each node
 #SBATCH --ntasks-per-socket=1        # How many tasks on each socket
@@ -22,7 +22,7 @@
 #
 # ---- Memory configuration ----
 #
-#SBATCH --mem=5000mb                 # Memory per node (MAX: 63500 on the new ones, 40000 on the old ones); incompatible with --mem-per-cpu.
+#SBATCH --mem=10000mb                 # Memory per node (MAX: 63500 on the new ones, 40000 on the old ones); incompatible with --mem-per-cpu.
 #[optional] #SBATCH --mem-per-cpu=4000mb         # Memory per thread; incompatible with --mem
 #
 # ---- Partition, Walltime and Output ----
