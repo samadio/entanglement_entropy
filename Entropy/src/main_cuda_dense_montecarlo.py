@@ -1,12 +1,12 @@
 from entropies import entanglement_entropy_montecarlo
 from states import *
 
-numbers = [132] #, [15, 22,33,66/71,132/131/129]
-maxiter = [12_000] #[1M, 1M, 500k, 50k, 9k]
+numbers = [66] #, [15, 22,33,66/71,132/131/129]
+maxiter = [90_000] #[1M, 1M, 500k, 50k, 9k]
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 
-files = [open("/home/samadio/entropy/Entropy/1_percent/results_L_" + str(L) + "_" +str(maxiter[0]) +"_N_"+str(numbers[0])+"_compat.py", 'a+') for L in L_list]
+files = [open("/home/samadio/entropy/Entropy/1_percent/results_L_" + str(L) + "_" +str(maxiter[0]) +"_N_"+str(numbers[0])+".py", 'a+') for L in L_list]
 
 for i, N in enumerate(numbers):
     print("from numpy import array", file=files[i])
