@@ -1,8 +1,16 @@
 from entropies import entanglement_entropy_montecarlo
 from states import *
 
-numbers = [66] #, [15, 22,33,66/71,132/131/129]
+<<<<<<< HEAD
+numbers = [255] #, [15, 22,33,66/71,132/131/129]
 maxiter = [90_000] #[1M, 1M, 500k, 50k, 12k]
+||||||| merged common ancestors
+numbers = [66] #, [15, 22,33,66/71,132/131/129]
+maxiter = [90_000] #[1M, 1M, 500k, 50k, 9k]
+=======
+numbers = [255] #, [15, 22,33,66/71,132/131/129]
+maxiter = [10_000] #[1M, 1M, 500k, 50k, 12k]
+>>>>>>> 2b170925d601e6660d61c85f08d52a218ff81793
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 
