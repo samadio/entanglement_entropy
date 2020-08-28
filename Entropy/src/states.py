@@ -12,7 +12,7 @@ def construct_modular_state(k: int, L: int, nonzero_elements_decimal_idx: list) 
     return coo_matrix((data, (nonzero_elements_decimal_idx, col)), shape=(2 ** (k + L), 1)).tocsr()
 
 
-@njit(parallel=True)
+@njit(parallel=True, nogil=True)
 def first_column(chosens: np.array, n_rows: int, binary_combinations: np.array) -> np.array:
     results = np.zeros(n_rows)
     powers = np.power(2.0, np.flip(chosens))
@@ -21,7 +21,7 @@ def first_column(chosens: np.array, n_rows: int, binary_combinations: np.array) 
     return results
 
 
-@njit(parallel=True)
+@njit(parallel=True, nogil=True)
 def col_gaps(notchosens: np.array, n_cols: int, binary_combinations: np.array) -> np.array:
     results = np.zeros(n_cols)
     powers = np.power(2.0, np.flip(notchosens))
@@ -30,7 +30,7 @@ def col_gaps(notchosens: np.array, n_cols: int, binary_combinations: np.array) -
     return results
 
 
-@njit(parallel=True)
+@njit(parallel=True, nogil=True)
 def get_density_matrix_from_W_dense(W: np.array) -> np.array:
     return np.dot(W, np.conj(W).T)
 

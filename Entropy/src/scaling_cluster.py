@@ -4,7 +4,7 @@ from entropies import *
 
 total_start = time()
 
-numbers = [23, 35, 68]#[23, 35, 68, 132]
+numbers = [23, 35, 68,132]#[23, 35, 68, 132]
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 current_state = 0
@@ -23,7 +23,7 @@ for i, N in enumerate(numbers):
         times = []
         for chosen in bipartitions:
             local_start = time()
-            entropy = entanglement_entropy_from_state(current_state, chosen, sparse=False)
+            entropy = entanglement_entropy_from_state(current_state, chosen, sparse=False, gpu=True)
             if flag: times.append(time() - local_start)
             else: flag = True
 
@@ -34,7 +34,7 @@ total_time = time() - start
 
 files = [open("/home/samadio/entropy/Entropy/times_L_" + str(L) + ".py", 'a+') for L in L_list]
 
-[print("#"+str(number_of_bip) + " bipartitions, NO COMPILNG\nmeans = " + str(means[i].tolist()), file=files[i]) for i in range(len(numbers))]
+[print("#"+str(number_of_bip) + " bipartitions, PARALLEL COMPILING \nmeans = " + str(means[i].tolist()), file=files[i]) for i in range(len(numbers))]
 [print("stds = " + str(stds[i].tolist()), file=files[i]) for i in range(len(numbers))]
 print("#total time " + str(total_time), file=files[0])
 [file.close() for file in files]

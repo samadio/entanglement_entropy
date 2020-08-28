@@ -5,7 +5,9 @@ from numpy.linalg import eigvalsh as eigh
 try:
     from cupy.linalg import eigvalsh as gpu_eigh
     import cupy as cp
+    pack = cp
 except:
+    pack = np
     pass
 
 
@@ -20,6 +22,7 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
     """
 
     notchosen = bip.notchosen(chosen, int(log2(state.shape[0])))
+
     if sparse:
         W = W_from_state_sparse(state, chosen, notchosen)
         svds = bip.sparsesvd(W, \
@@ -36,7 +39,7 @@ def entanglement_entropy_from_state(state, chosen: list, sparse: bool = True, gp
         a = cp.log2(eig)
         return cp.asnumpy(- cp.sum(eig * a))
 
-    rho = density_matrix_from_state_dense(state, chosen, notchosen)
+    rho = density_matrix_from_state_dense(state, chosen, notchosen)    
     eig = eigh(rho)
     eig = eig[eig > 1e-15]
     a = np.log2(eig)
@@ -118,8 +121,8 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
     mean_convergence = False
     var_convergence = False
     results = []
-
-    pack = cp if gpu else np
+    
+    if not gpu: pack = np
 
     for i in range(maxiter):
         current_bipartition = combinations_considered[i]
