@@ -32,15 +32,14 @@ def applyIQFT_circuit(L: int, current_state: np.ndarray) -> np.ndarray:
     """
 
     circuit = QuantumCircuit(3 * L)
-    circuit.initialize(current_state, circuit.qubits)
+    circuit.initialize(current_state.reshape(2 ** (3 * L)), circuit.qubits)
     circuit = QFT.construct_circuit(circuit=circuit, qubits=circuit.qubits[L:3 * L], inverse=True, do_swaps=True)
 
     backend = qt.Aer.get_backend('statevector_simulator')
-    #backend = QCGPUProvider().get_backend('statevector_simulator')
+    # backend = QCGPUProvider().get_backend('statevector_simulator')
     final_state = execute(circuit, backend, shots=1).result().get_statevector()
 
     return final_state
-
 
 def applyIQFT_huge(L: int, current_state: coo_matrix) -> np.ndarray:
     """

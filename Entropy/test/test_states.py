@@ -1,6 +1,5 @@
 from unittest import TestCase
 from auxiliary.bipartitions import random_bipartition, notchosen
-from states import *
 from qiskit.quantum_info import partial_trace, entropy, Statevector
 from jax.numpy.linalg import svd as jsvd
 from numpy.linalg import svd as numpysvd
@@ -33,7 +32,7 @@ class Test(TestCase):
         number_of_qubits = k + L
         nonzeros_decimal = aux.nonzeros_decimal(k, N, Y)
         state = construct_modular_state(k, L, nonzeros_decimal)
-        tries = 20
+        tries = 200
         for i in range(tries):
             chosen = random_bipartition(range(number_of_qubits), number_of_qubits // 2)
             notchosen = bip.notchosen(chosen, number_of_qubits)
@@ -42,7 +41,7 @@ class Test(TestCase):
                 Statevector(state.toarray().flatten()),
                 [k+L-1-i for i in notchosen]))
 
-            self.assertTrue(np.abs(qentropy - state_entropy) < 1e-14)
+            self.assertTrue(np.abs(qentropy - state_entropy) < 1e-12)
 
     def test_IQFT_entropy_equals_qiskit(self):
         Y = 13
