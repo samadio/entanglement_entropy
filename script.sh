@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 #SBATCH --job-name=ConstrEighTimes1000Bip40Cores      # The name of your job, you'll se it in squeue.
@@ -22,7 +23,7 @@
 #
 # ---- Memory configuration ----
 #
-#SBATCH --mem=10000mb                 # Memory per node (MAX: 63500 on the new ones, 40000 on the old ones); incompatible with --mem-per-cpu.
+#SBATCH --mem=5120mb                 # Memory per node (MAX: 63500 on the new ones, 40000 on the old ones); incompatible with --mem-per-cpu.
 #[optional] #SBATCH --mem-per-cpu=4000mb         # Memory per thread; incompatible with --mem
 #
 # ---- Partition, Walltime and Output ----
