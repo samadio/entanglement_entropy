@@ -121,7 +121,8 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
     mean_convergence = False
     var_convergence = False
     results = []
-    
+    global pack    
+
     if not gpu: pack = np
 
     for i in range(maxiter):

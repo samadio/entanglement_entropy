@@ -1,8 +1,8 @@
 from entropies import entanglement_entropy_montecarlo
 from states import *
 
-numbers = [255] #, [15, 22,33,66/71,132/131/129]
-maxiter = [12_000] #[1M, 1M, 500k, 50k, 12k]
+numbers = [20] #, [15, 22,33,66/71,132/131/129]
+maxiter = [1_000_000] #[1M, 1M, 500k, 50k, 12k]
 L_list = [aux.lfy(N) for N in numbers]
 Y = 13
 
