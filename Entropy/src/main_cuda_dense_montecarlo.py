@@ -10,6 +10,6 @@ Y = 13
 
 for i, N in enumerate(numbers):
     #print("from numpy import array", file=files[i])
-    res = entanglement_entropy_montecarlo(Y, N, maxiter=maxiter[i], step=max(maxiter[i]//100, 100), tol=1e-1, gpu=False, sparse=False)
+    res = entanglement_entropy_montecarlo(Y, N, maxiter=maxiter[i], step=max(maxiter[i]//100, 100), tol=1e-1, gpu=True, sparse=False)
     #print("results = " + str(res), file= files[i])
     #files[i].close()

@@ -80,7 +80,7 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
         if not sparse: current_state = current_state.toarray().reshape(2 ** (k + L))
         combinations_considered = bipartitions[k - 1]
 
-        if bip.number_of_bipartitions(k + L) <= step:
+        if bip.number_of_bipartitions(k + L) <= maxiter:
             results.append([(True, True), [entanglement_entropy_from_state(current_state, chosen, False) \
                                            for chosen in combinations(range(k + L), (k + L) // 2)]])
         else:
@@ -92,7 +92,7 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
     if sparse: current_state = current_state.toarray().reshape(2 ** (k + L))
 
     current_state = apply_IQFT(L, current_state)
-    if bip.number_of_bipartitions(3 * L) <= step:
+    if bip.number_of_bipartitions(3 * L) <= maxiter:
         results.append(((True, True), [entanglement_entropy_from_state(current_state, chosen, sparse=sparse, gpu=gpu) \
                                        for chosen in combinations(range(k + L), (k + L) // 2)]))
     else:
@@ -121,9 +121,9 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
     mean_convergence = False
     var_convergence = False
     results = []
-    global pack    
+    global pack
 
-    if not gpu: pack = np
+    if not gpu: pack=np
 
     for i in range(maxiter):
         current_bipartition = combinations_considered[i]
@@ -143,8 +143,14 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
 
             mean_convergence = pack.abs(previous_mean - current_mean) < tol
             var_convergence = pack.abs(previous_var - current_var) < tol
+            cp.cuda.Stream.null.synchronize()
 
             if mean_convergence and var_convergence: return (True, True), results
+            print("mean shift: ",pack.abs(previous_mean - current_mean))
+            print("var shift: ",pack.abs(previous_var - current_var))
+            print("tolerance: ", tol)
+            print("mean: prev,curr: ", previous_mean, current_mean)
+            print("var: prev,curr: ", previous_var, current_var)
             previous_mean = current_mean
             previous_var = current_var
 
