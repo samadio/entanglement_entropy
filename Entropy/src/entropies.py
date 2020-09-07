@@ -130,12 +130,11 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
         results.append(entanglement_entropy_from_state(state, current_bipartition, sparse=sparse, gpu=gpu))
 
         # first step
-        if i + 1 == step:
+        if (i + 1) == step:
             previous_mean = pack.mean(pack.array(results))
             previous_var = pack.var(pack.array(results), ddof=1)
             continue
-
-        if i + 1 % step == 0:
+        if (i + 1) % step == 0:
             current_mean = pack.mean(pack.array(results))
             current_var = pack.var(pack.array(results), ddof=1)
 
@@ -144,6 +143,7 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
 
             mean_convergence = pack.abs(previous_mean - current_mean) < tol
             var_convergence = pack.abs(previous_var - current_var) < tol
+
             if mean_convergence and var_convergence: return (True, True), results
             previous_mean = current_mean
             previous_var = current_var
