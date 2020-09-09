@@ -1,0 +1,48 @@
+------------------------------------------------------
+This job is allocated on 40 cpu(s)
+Job is running on node(s): 
+gn05-09
+------------------------------------------------------
+WORKINFO:
+SLURM: job starting at           17:33-Tue-08/Sep/2020
+SLURM: sbatch is running on      login2
+SLURM: executing on cluster      ulysses2
+SLURM: executing on partition    gpu1
+SLURM: working directory is      /home/samadio/entanglement_entropy
+SLURM: current home directory is /home/samadio
+
+JOBINFO:
+SLURM: job identifier is         337075
+SLURM: job name is               convergence_L7
+
+NODEINFO:
+SLURM: number of nodes is        1
+SLURM: number of cpus/node is    40
+SLURM: number of gpus/node is    
+------------------------------------------------------
+1
+2
+3
+4
+5
+6
+7
+Welcome to Montecarlo, step:  1000
+8
+Welcome to Montecarlo, step:  1000
+9
+Welcome to Montecarlo, step:  1000
+10
+Welcome to Montecarlo, step:  1000
+11
+Welcome to Montecarlo, step:  1000
+12
+Welcome to Montecarlo, step:  1000
+13
+Welcome to Montecarlo, step:  1000
+14
+Welcome to Montecarlo, step:  1000
+Welcome to Montecarlo, step:  1000
+lens:  [70, 126, 252, 462, 924, 1716, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000]
+convergence:  [(True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True)]
+Waiting for all the processes to finish...
