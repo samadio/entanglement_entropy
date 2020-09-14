@@ -73,9 +73,7 @@ def entanglement_entropy_montecarlo(Y: int, N: int, maxiter: int, step: int = 10
     bipartitions = [[bip.random_bipartition(range(k + L), (k + L) // 2) for j in range(maxiter)] for k in range(2 * L)]
 
     ''' Modular exponentiation  '''
-    for k in range(1, 2 * L + 1):
-        
-        print(k)
+    for k in range(1, 2 * L + 1):      
 
         current_state = construct_modular_state(k, L, nonzeros_decimal_positions[:2 ** k])
 
@@ -118,8 +116,6 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
     :return:                            results as list of entropies
     """
 
-    print("Welcome to Montecarlo, step: ", step)
-
     previous_mean = None
     previous_var = None
     mean_convergence = False
@@ -135,14 +131,11 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
 
         # first step
         if (i + 1) == step:
-            #print("initialisation")
             previous_mean = pack.mean(pack.array(results))
             previous_var = pack.var(pack.array(results), ddof=1)
             continue
         
         if (i + 1) % step == 0:
-
-            #print("2nd step")
 
             current_mean = pack.mean(pack.array(results))
             current_var = pack.var(pack.array(results), ddof=1)
@@ -154,12 +147,12 @@ def montecarlo_simulation(state: np.array, step: int, maxiter: int, combinations
             var_convergence = pack.abs(previous_var - current_var) < tol
             if gpu: pack.cuda.Stream.null.synchronize()
 
-            print("mean shift: ",pack.abs(previous_mean - current_mean))
-            print("var shift: ",pack.abs(previous_var - current_var))
-            print("tolerance: ", tol)
-            print("mean: prev,curr: ", previous_mean, current_mean)
-            print("var: prev,curr: ", previous_var, current_var)
-            print("mean conv, var conv: ", mean_convergence, var_convergence)
+            #print("mean shift: ",pack.abs(previous_mean - current_mean))
+            #print("var shift: ",pack.abs(previous_var - current_var))
+            #print("tolerance: ", tol)
+            #print("mean: prev,curr: ", previous_mean, current_mean)
+            #print("var: prev,curr: ", previous_var, current_var)
+            #print("mean conv, var conv: ", mean_convergence, var_convergence)
 
 
             if mean_convergence and var_convergence: return (True, True), results

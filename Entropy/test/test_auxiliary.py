@@ -27,11 +27,16 @@ class AuxiliaryTests(TestCase):
         def __nonzeros_aux_test__(m: int, L: int, Y: int, N: int) -> int:
             return m * (2 ** L) + ((Y ** m) % N)
 
-        N = 21
+        N = 22
         L = lfy(N)
         Y = 13
         k = 2 * L
         mine = nonzeros_decimal(k, Y, N)
+
+        #mine = np.mod(np.power(Y, range(2**k)), N)
+        #test =np.array([i * 2**L for i in range(2**k)])
+        #mine = test + mine
+
 
         np.testing.assert_array_equal(mine, [__nonzeros_aux_test__(m, L, Y, N) for m in range(2 ** k)])
 
