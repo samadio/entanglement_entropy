@@ -1,0 +1,353 @@
+------------------------------------------------------
+This job is allocated on 40 cpu(s)
+Job is running on node(s): 
+cn07-27
+------------------------------------------------------
+WORKINFO:
+SLURM: job starting at           16:32-Sat-12/Sep/2020
+SLURM: sbatch is running on      login2
+SLURM: executing on cluster      ulysses2
+SLURM: executing on partition    long1
+SLURM: working directory is      /home/samadio/entanglement_entropy
+SLURM: current home directory is /home/samadio
+
+JOBINFO:
+SLURM: job identifier is         352792
+SLURM: job name is               N257_prec2_step_50
+
+NODEINFO:
+SLURM: number of nodes is        1
+SLURM: number of cpus/node is    40
+SLURM: number of gpus/node is    
+------------------------------------------------------
+1
+2
+3
+4
+Welcome to Montecarlo, step:  50
+mean shift:  0.0025773579681249714
+var shift:  0.0056003924373992375
+tolerance:  0.01
+mean: prev,curr:  3.5828089174807713 3.5802315595126464
+var: prev,curr:  0.025634773326988953 0.03123516576438819
+mean conv, var conv:  True True
+5
+Welcome to Montecarlo, step:  50
+mean shift:  0.005811865226810653
+var shift:  0.011776131801013452
+tolerance:  0.01
+mean: prev,curr:  4.295844434515361 4.301656299742172
+var: prev,curr:  0.045249971307554995 0.03347383950654154
+mean conv, var conv:  True False
+mean shift:  0.006627533101382532
+var shift:  0.002005814221307682
+tolerance:  0.01
+mean: prev,curr:  4.301656299742172 4.295028766640789
+var: prev,curr:  0.03347383950654154 0.035479653727849225
+mean conv, var conv:  True True
+6
+Welcome to Montecarlo, step:  50
+mean shift:  0.025751937395406266
+var shift:  0.001579000522218807
+tolerance:  0.01
+mean: prev,curr:  5.264636069183415 5.238884131788009
+var: prev,curr:  0.01894313660348948 0.017364136081270673
+mean conv, var conv:  False True
+mean shift:  0.0069814218685211316
+var shift:  0.0004980240094646302
+tolerance:  0.01
+mean: prev,curr:  5.238884131788009 5.2319027099194875
+var: prev,curr:  0.017364136081270673 0.017862160090735303
+mean conv, var conv:  True True
+7
+Welcome to Montecarlo, step:  50
+mean shift:  0.019243491180552574
+var shift:  0.006691246593753072
+tolerance:  0.01
+mean: prev,curr:  5.8370762322303476 5.8563197234109
+var: prev,curr:  0.05706321487706589 0.06375446147081897
+mean conv, var conv:  False True
+mean shift:  0.007859643836582109
+var shift:  0.007705234680155167
+tolerance:  0.01
+mean: prev,curr:  5.8563197234109 5.864179367247482
+var: prev,curr:  0.06375446147081897 0.0560492267906638
+mean conv, var conv:  True True
+8
+Welcome to Montecarlo, step:  50
+mean shift:  0.008477449676186133
+var shift:  0.0010352906460367618
+tolerance:  0.01
+mean: prev,curr:  6.0563534088019795 6.064830858478166
+var: prev,curr:  0.00795905902925719 0.008994349675293951
+mean conv, var conv:  True True
+9
+Welcome to Montecarlo, step:  50
+mean shift:  0.019896864215619203
+var shift:  0.002524980239960957
+tolerance:  0.01
+mean: prev,curr:  5.958790072483993 5.978686936699612
+var: prev,curr:  0.04115979636135228 0.04368477660131324
+mean conv, var conv:  False True
+mean shift:  0.006953134519879001
+var shift:  0.0007563042424208813
+tolerance:  0.01
+mean: prev,curr:  5.978686936699612 5.971733802179733
+var: prev,curr:  0.04368477660131324 0.042928472358892356
+mean conv, var conv:  True True
+10
+Welcome to Montecarlo, step:  50
+mean shift:  0.0031819938069101994
+var shift:  0.00985977510363785
+tolerance:  0.01
+mean: prev,curr:  5.9843093729284815 5.987491366735392
+var: prev,curr:  0.045107602762382015 0.035247827658744166
+mean conv, var conv:  True True
+11
+Welcome to Montecarlo, step:  50
+mean shift:  0.05027938767165807
+var shift:  0.0075780828248779575
+tolerance:  0.01
+mean: prev,curr:  5.956958226218429 5.906678838546771
+var: prev,curr:  0.07389748487020448 0.08147556769508243
+mean conv, var conv:  False True
+mean shift:  0.00468588819682747
+var shift:  0.01926531921792228
+tolerance:  0.01
+mean: prev,curr:  5.906678838546771 5.9019929503499435
+var: prev,curr:  0.08147556769508243 0.10074088691300472
+mean conv, var conv:  True False
+mean shift:  0.001433136381839617
+var shift:  0.013377731886016833
+tolerance:  0.01
+mean: prev,curr:  5.9019929503499435 5.903426086731783
+var: prev,curr:  0.10074088691300472 0.08736315502698788
+mean conv, var conv:  True False
+mean shift:  0.011751369139159529
+var shift:  0.0016567113435787678
+tolerance:  0.01
+mean: prev,curr:  5.903426086731783 5.891674717592624
+var: prev,curr:  0.08736315502698788 0.08901986637056665
+mean conv, var conv:  False True
+mean shift:  0.0044629145867549624
+var shift:  0.0005225521768203872
+tolerance:  0.01
+mean: prev,curr:  5.891674717592624 5.896137632179379
+var: prev,curr:  0.08901986637056665 0.08849731419374626
+mean conv, var conv:  True True
+12
+Welcome to Montecarlo, step:  50
+mean shift:  0.02995978322142623
+var shift:  0.014741725304707347
+tolerance:  0.01
+mean: prev,curr:  5.969155203138127 5.939195419916701
+var: prev,curr:  0.039122277797985716 0.05386400310269306
+mean conv, var conv:  False False
+mean shift:  0.02100782760685682
+var shift:  0.02086126746535017
+tolerance:  0.01
+mean: prev,curr:  5.939195419916701 5.918187592309844
+var: prev,curr:  0.05386400310269306 0.07472527056804323
+mean conv, var conv:  False False
+mean shift:  0.01028221382390182
+var shift:  0.004630197210082329
+tolerance:  0.01
+mean: prev,curr:  5.918187592309844 5.928469806133746
+var: prev,curr:  0.07472527056804323 0.0700950733579609
+mean conv, var conv:  False True
+mean shift:  0.007398281129684214
+var shift:  0.0025846034940826684
+tolerance:  0.01
+mean: prev,curr:  5.928469806133746 5.921071525004062
+var: prev,curr:  0.0700950733579609 0.06751046986387824
+mean conv, var conv:  True True
+13
+Welcome to Montecarlo, step:  50
+mean shift:  0.038195557484775655
+var shift:  0.007829649943316572
+tolerance:  0.01
+mean: prev,curr:  5.881725812418167 5.843530254933391
+var: prev,curr:  0.09122834705861926 0.09905799700193584
+mean conv, var conv:  False True
+mean shift:  0.023407698995759674
+var shift:  0.035480417677370577
+tolerance:  0.01
+mean: prev,curr:  5.843530254933391 5.8201225559376315
+var: prev,curr:  0.09905799700193584 0.1345384146793064
+mean conv, var conv:  False False
+mean shift:  0.004558036037023427
+var shift:  0.0032668561766870385
+tolerance:  0.01
+mean: prev,curr:  5.8201225559376315 5.815564519900608
+var: prev,curr:  0.1345384146793064 0.13780527085599345
+mean conv, var conv:  True True
+14
+Welcome to Montecarlo, step:  50
+mean shift:  0.03114535068640123
+var shift:  0.02436762999001582
+tolerance:  0.01
+mean: prev,curr:  5.841361913969839 5.872507264656241
+var: prev,curr:  0.13234909555345276 0.10798146556343693
+mean conv, var conv:  False False
+mean shift:  0.011668939516304988
+var shift:  0.01942541795748154
+tolerance:  0.01
+mean: prev,curr:  5.872507264656241 5.884176204172546
+var: prev,curr:  0.10798146556343693 0.12740688352091847
+mean conv, var conv:  False False
+mean shift:  0.009274892978825555
+var shift:  0.004928036654977819
+tolerance:  0.01
+mean: prev,curr:  5.884176204172546 5.87490131119372
+var: prev,curr:  0.12740688352091847 0.12247884686594065
+mean conv, var conv:  True True
+15
+Welcome to Montecarlo, step:  50
+mean shift:  0.017938224817436677
+var shift:  0.014004838875445264
+tolerance:  0.01
+mean: prev,curr:  5.851407376366385 5.8334691515489485
+var: prev,curr:  0.1378984006845278 0.15190323955997306
+mean conv, var conv:  False False
+mean shift:  0.03380452655941468
+var shift:  0.027855310193209082
+tolerance:  0.01
+mean: prev,curr:  5.8334691515489485 5.799664624989534
+var: prev,curr:  0.15190323955997306 0.17975854975318215
+mean conv, var conv:  False False
+mean shift:  0.025402929480055292
+var shift:  0.02133938785902481
+tolerance:  0.01
+mean: prev,curr:  5.799664624989534 5.7742616955094785
+var: prev,curr:  0.17975854975318215 0.20109793761220696
+mean conv, var conv:  False False
+mean shift:  0.005585856722642113
+var shift:  0.001601785355879931
+tolerance:  0.01
+mean: prev,curr:  5.7742616955094785 5.768675838786836
+var: prev,curr:  0.20109793761220696 0.2026997229680869
+mean conv, var conv:  True True
+16
+Welcome to Montecarlo, step:  50
+mean shift:  0.07246107847216265
+var shift:  0.006654564075419062
+tolerance:  0.01
+mean: prev,curr:  5.865355618619836 5.792894540147674
+var: prev,curr:  0.19426798673577492 0.18761342266035586
+mean conv, var conv:  False True
+mean shift:  0.006541171230009191
+var shift:  0.0005307094484425234
+tolerance:  0.01
+mean: prev,curr:  5.792894540147674 5.799435711377683
+var: prev,curr:  0.18761342266035586 0.18814413210879838
+mean conv, var conv:  True True
+17
+Welcome to Montecarlo, step:  50
+mean shift:  0.06019428225634904
+var shift:  0.03404511526008813
+tolerance:  0.01
+mean: prev,curr:  5.694751139915163 5.754945422171512
+var: prev,curr:  0.23398695226345378 0.19994183700336565
+mean conv, var conv:  False False
+mean shift:  0.004404746631442968
+var shift:  0.012170505450344787
+tolerance:  0.01
+mean: prev,curr:  5.754945422171512 5.759350168802955
+var: prev,curr:  0.19994183700336565 0.21211234245371044
+mean conv, var conv:  True False
+mean shift:  0.029836360696791964
+var shift:  0.02061007885683902
+tolerance:  0.01
+mean: prev,curr:  5.759350168802955 5.729513808106163
+var: prev,curr:  0.21211234245371044 0.23272242131054946
+mean conv, var conv:  False False
+mean shift:  0.04316313775383218
+var shift:  0.024137542258120315
+tolerance:  0.01
+mean: prev,curr:  5.729513808106163 5.772676945859995
+var: prev,curr:  0.23272242131054946 0.20858487905242915
+mean conv, var conv:  False False
+mean shift:  0.014177645021210772
+var shift:  0.004182274090706428
+tolerance:  0.01
+mean: prev,curr:  5.772676945859995 5.758499300838785
+var: prev,curr:  0.20858487905242915 0.21276715314313557
+mean conv, var conv:  False True
+mean shift:  0.0035819827333307686
+var shift:  0.009708585788242075
+tolerance:  0.01
+mean: prev,curr:  5.758499300838785 5.754917318105454
+var: prev,curr:  0.21276715314313557 0.22247573893137765
+mean conv, var conv:  True True
+18
+Welcome to Montecarlo, step:  50
+mean shift:  0.01168568780352075
+var shift:  0.03911763072378263
+tolerance:  0.01
+mean: prev,curr:  5.775740001044029 5.764054313240508
+var: prev,curr:  0.17516719373253264 0.21428482445631528
+mean conv, var conv:  False False
+mean shift:  0.04315904672186921
+var shift:  0.015743870458069825
+tolerance:  0.01
+mean: prev,curr:  5.764054313240508 5.720895266518639
+var: prev,curr:  0.21428482445631528 0.2300286949143851
+mean conv, var conv:  False False
+mean shift:  0.024777847492152283
+var shift:  0.007232916814880641
+tolerance:  0.01
+mean: prev,curr:  5.720895266518639 5.745673114010791
+var: prev,curr:  0.2300286949143851 0.23726161172926574
+mean conv, var conv:  False True
+mean shift:  0.023594991134376464
+var shift:  0.023116092550330064
+tolerance:  0.01
+mean: prev,curr:  5.745673114010791 5.7692681051451675
+var: prev,curr:  0.23726161172926574 0.21414551917893568
+mean conv, var conv:  False False
+mean shift:  0.0016644874632927298
+var shift:  0.0025098652185018
+tolerance:  0.01
+mean: prev,curr:  5.7692681051451675 5.77093259260846
+var: prev,curr:  0.21414551917893568 0.21163565396043388
+mean conv, var conv:  True True
+Welcome to Montecarlo, step:  50
+mean shift:  0.06617401104800535
+var shift:  0.12710596973905092
+tolerance:  0.01
+mean: prev,curr:  6.641954946526991 6.7081289575749965
+var: prev,curr:  0.43771993436643897 0.31061396462738805
+mean conv, var conv:  False False
+mean shift:  0.010967951940544118
+var shift:  0.03284772745690545
+tolerance:  0.01
+mean: prev,curr:  6.7081289575749965 6.719096909515541
+var: prev,curr:  0.31061396462738805 0.2777662371704826
+mean conv, var conv:  False False
+mean shift:  0.016943896352797694
+var shift:  0.018410255693782407
+tolerance:  0.01
+mean: prev,curr:  6.719096909515541 6.736040805868338
+var: prev,curr:  0.2777662371704826 0.2593559814767002
+mean conv, var conv:  False False
+mean shift:  0.01228569614093633
+var shift:  0.03390890646359479
+tolerance:  0.01
+mean: prev,curr:  6.736040805868338 6.723755109727402
+var: prev,curr:  0.2593559814767002 0.293264887940295
+mean conv, var conv:  False False
+mean shift:  0.004418920837035323
+var shift:  0.013239882403701775
+tolerance:  0.01
+mean: prev,curr:  6.723755109727402 6.719336188890367
+var: prev,curr:  0.293264887940295 0.2800250055365932
+mean conv, var conv:  True False
+mean shift:  0.0066798083343933
+var shift:  0.007444102370361028
+tolerance:  0.01
+mean: prev,curr:  6.719336188890367 6.72601599722476
+var: prev,curr:  0.2800250055365932 0.2725809031662322
+mean conv, var conv:  True True
+lens:  [252, 462, 924, 100, 150, 150, 150, 100, 150, 100, 300, 250, 200, 200, 250, 150, 350, 300, 350]
+convergence:  [(True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True)]
+Waiting for all the processes to finish...

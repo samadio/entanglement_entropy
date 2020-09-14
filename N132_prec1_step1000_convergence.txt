@@ -1,0 +1,111 @@
+------------------------------------------------------
+This job is allocated on 40 cpu(s)
+Job is running on node(s): 
+gn05-10
+------------------------------------------------------
+WORKINFO:
+SLURM: job starting at           17:29-Wed-09/Sep/2020
+SLURM: sbatch is running on      login2
+SLURM: executing on cluster      ulysses2
+SLURM: executing on partition    gpu1
+SLURM: working directory is      /home/samadio/entanglement_entropy
+SLURM: current home directory is /home/samadio
+
+JOBINFO:
+SLURM: job identifier is         339571
+SLURM: job name is               N132_prec1_step_1_000_new
+
+NODEINFO:
+SLURM: number of nodes is        1
+SLURM: number of cpus/node is    40
+SLURM: number of gpus/node is    
+------------------------------------------------------
+1
+2
+3
+4
+5
+6
+7
+8
+Welcome to Montecarlo, step:  1000
+mean shift:  0.00492015334819218
+var shift:  0.008132281958096371
+tolerance:  0.1
+mean: prev,curr:  4.0421748984722345 4.047095051820427
+var: prev,curr:  0.19454682581887375 0.18641454386077738
+mean conv, var conv:  True True
+9
+Welcome to Montecarlo, step:  1000
+mean shift:  0.004700832583098169
+var shift:  0.002294340670771944
+tolerance:  0.1
+mean: prev,curr:  4.164116468904362 4.159415636321264
+var: prev,curr:  0.1833230547762271 0.18102871410545515
+mean conv, var conv:  True True
+10
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0048688939476164705
+var shift:  0.0037365856949481135
+tolerance:  0.1
+mean: prev,curr:  4.176576336072162 4.1717074421245455
+var: prev,curr:  0.19734801786196202 0.1936114321670139
+mean conv, var conv:  True True
+11
+Welcome to Montecarlo, step:  1000
+mean shift:  0.019526968718662552
+var shift:  0.006173708732228944
+tolerance:  0.1
+mean: prev,curr:  4.191301425827076 4.2108283945457385
+var: prev,curr:  0.1971497215081501 0.19097601277592116
+mean conv, var conv:  True True
+12
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0041318298171271195
+var shift:  0.0016514011112352123
+tolerance:  0.1
+mean: prev,curr:  4.1882680808715556 4.184136251054428
+var: prev,curr:  0.21664297731254845 0.21499157620131323
+mean conv, var conv:  True True
+13
+Welcome to Montecarlo, step:  1000
+mean shift:  0.02687990704079457
+var shift:  0.023265574347584556
+tolerance:  0.1
+mean: prev,curr:  4.233681646789753 4.2068017397489585
+var: prev,curr:  0.19444704658419307 0.21771262093177762
+mean conv, var conv:  True True
+14
+Welcome to Montecarlo, step:  1000
+mean shift:  0.012450223022043794
+var shift:  0.004310503543025007
+tolerance:  0.1
+mean: prev,curr:  4.198649255788499 4.1861990327664556
+var: prev,curr:  0.23412589533928074 0.23843639888230575
+mean conv, var conv:  True True
+15
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0013922485460593492
+var shift:  0.004766475506078061
+tolerance:  0.1
+mean: prev,curr:  4.209275758535919 4.210668007081979
+var: prev,curr:  0.23002477498190463 0.22525829947582657
+mean conv, var conv:  True True
+16
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0020786451977681253
+var shift:  0.012663332775197517
+tolerance:  0.1
+mean: prev,curr:  4.205149981902292 4.2072286271000605
+var: prev,curr:  0.2058409730114059 0.2185043057866034
+mean conv, var conv:  True True
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0012916310476613901
+var shift:  0.0030166489179266898
+tolerance:  0.1
+mean: prev,curr:  6.694617540540554 6.693325909492892
+var: prev,curr:  0.3538777926176165 0.3508611436996898
+mean conv, var conv:  True True
+lens:  [126, 252, 462, 924, 1716, 3432, 6435, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000]
+convergence:  [(True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True)]
+Waiting for all the processes to finish...

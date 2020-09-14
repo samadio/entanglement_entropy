@@ -1,0 +1,135 @@
+------------------------------------------------------
+This job is allocated on 40 cpu(s)
+Job is running on node(s): 
+gn05-09
+------------------------------------------------------
+WORKINFO:
+SLURM: job starting at           17:23-Wed-09/Sep/2020
+SLURM: sbatch is running on      login2
+SLURM: executing on cluster      ulysses2
+SLURM: executing on partition    gpu1
+SLURM: working directory is      /home/samadio/entanglement_entropy
+SLURM: current home directory is /home/samadio
+
+JOBINFO:
+SLURM: job identifier is         339570
+SLURM: job name is               N132_prec2_step_1_000_new
+
+NODEINFO:
+SLURM: number of nodes is        1
+SLURM: number of cpus/node is    40
+SLURM: number of gpus/node is    
+------------------------------------------------------
+1
+2
+3
+4
+5
+6
+7
+8
+Welcome to Montecarlo, step:  1000
+mean shift:  0.004252189342926371
+var shift:  0.003094662107745616
+tolerance:  0.01
+mean: prev,curr:  4.043179031678091 4.038926842335164
+var: prev,curr:  0.20316681287027255 0.20007215076252693
+mean conv, var conv:  True True
+9
+Welcome to Montecarlo, step:  1000
+mean shift:  0.008734858632380771
+var shift:  0.006828718898443942
+tolerance:  0.01
+mean: prev,curr:  4.15402457764804 4.162759436280421
+var: prev,curr:  0.19203799026534196 0.18520927136689802
+mean conv, var conv:  True True
+10
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0014257789910647745
+var shift:  0.001509851777466542
+tolerance:  0.01
+mean: prev,curr:  4.164408817390387 4.165834596381452
+var: prev,curr:  0.192689620113067 0.19419947189053355
+mean conv, var conv:  True True
+11
+Welcome to Montecarlo, step:  1000
+mean shift:  0.004869473090982623
+var shift:  0.006432560740790461
+tolerance:  0.01
+mean: prev,curr:  4.20770069013954 4.212570163230523
+var: prev,curr:  0.1904543001310128 0.18402173939022234
+mean conv, var conv:  True True
+12
+Welcome to Montecarlo, step:  1000
+mean shift:  0.02383382495922337
+var shift:  0.016287618236549145
+tolerance:  0.01
+mean: prev,curr:  4.199153334956783 4.17531950999756
+var: prev,curr:  0.21835767747741816 0.2346452957139673
+mean conv, var conv:  False False
+mean shift:  0.006586475649431378
+var shift:  0.009607215499484373
+tolerance:  0.01
+mean: prev,curr:  4.17531950999756 4.181905985646991
+var: prev,curr:  0.2346452957139673 0.22503808021448293
+mean conv, var conv:  True True
+13
+Welcome to Montecarlo, step:  1000
+mean shift:  0.019352442187479113
+var shift:  0.02218648535008455
+tolerance:  0.01
+mean: prev,curr:  4.232428000703562 4.213075558516083
+var: prev,curr:  0.17176855841196484 0.1939550437620494
+mean conv, var conv:  False False
+mean shift:  0.004264869975152408
+var shift:  0.0014788433759358455
+tolerance:  0.01
+mean: prev,curr:  4.213075558516083 4.2173404284912355
+var: prev,curr:  0.1939550437620494 0.19247620038611354
+mean conv, var conv:  True True
+14
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0007479640190499737
+var shift:  0.0012680998725187187
+tolerance:  0.01
+mean: prev,curr:  4.190315637129312 4.191063601148362
+var: prev,curr:  0.2297187847905502 0.2309868846630689
+mean conv, var conv:  True True
+15
+Welcome to Montecarlo, step:  1000
+mean shift:  0.0034122675805123848
+var shift:  0.008771104278256864
+tolerance:  0.01
+mean: prev,curr:  4.1984592897425 4.201871557323012
+var: prev,curr:  0.22688572320066455 0.2181146189224077
+mean conv, var conv:  True True
+16
+Welcome to Montecarlo, step:  1000
+mean shift:  0.01118656138456764
+var shift:  0.02559335462123119
+tolerance:  0.01
+mean: prev,curr:  4.18652468374705 4.197711245131617
+var: prev,curr:  0.2574915209293598 0.2318981663081286
+mean conv, var conv:  False False
+mean shift:  0.005237404192991235
+var shift:  0.0027753754576790024
+tolerance:  0.01
+mean: prev,curr:  4.197711245131617 4.192473840938626
+var: prev,curr:  0.2318981663081286 0.2346735417658076
+mean conv, var conv:  True True
+Welcome to Montecarlo, step:  1000
+mean shift:  0.01225520659443724
+var shift:  0.0005216199186350856
+tolerance:  0.01
+mean: prev,curr:  6.64193357584904 6.654188782443478
+var: prev,curr:  0.3596193769502715 0.35909775703163643
+mean conv, var conv:  False True
+mean shift:  0.008391342157475279
+var shift:  0.0007538332838983308
+tolerance:  0.01
+mean: prev,curr:  6.654188782443478 6.662580124600953
+var: prev,curr:  0.35909775703163643 0.35985159031553476
+mean conv, var conv:  True True
+lens:  [126, 252, 462, 924, 1716, 3432, 6435, 2000, 2000, 2000, 2000, 3000, 3000, 2000, 2000, 3000, 3000]
+convergence:  [(True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True)]
+Waiting for all the processes to finish...

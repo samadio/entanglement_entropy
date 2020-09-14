@@ -1,0 +1,185 @@
+------------------------------------------------------
+This job is allocated on 40 cpu(s)
+Job is running on node(s): 
+cn06-03
+------------------------------------------------------
+WORKINFO:
+SLURM: job starting at           12:58-Wed-09/Sep/2020
+SLURM: sbatch is running on      login2
+SLURM: executing on cluster      ulysses2
+SLURM: executing on partition    long1
+SLURM: working directory is      /home/samadio/entanglement_entropy
+SLURM: current home directory is /home/samadio
+
+JOBINFO:
+SLURM: job identifier is         338666
+SLURM: job name is               L9_prec1_step50
+
+NODEINFO:
+SLURM: number of nodes is        1
+SLURM: number of cpus/node is    40
+SLURM: number of gpus/node is    
+------------------------------------------------------
+
+Precision 1
+
+1
+2
+Welcome to Montecarlo, step:  50
+mean shift:  0.020137935149149966
+var shift:  0.0074774358060697155
+tolerance:  0.1
+mean: prev,curr:  1.5121055241163202 1.5322434592654701
+var: prev,curr:  0.13050045902414859 0.12302302321807887
+mean conv, var conv:  True True
+3
+Welcome to Montecarlo, step:  50
+mean shift:  0.022105929170337824
+var shift:  0.00013738198449353423
+tolerance:  0.1
+mean: prev,curr:  2.555218305360911 2.5331123761905734
+var: prev,curr:  0.07123583168162691 0.07109844969713337
+mean conv, var conv:  True True
+4
+Welcome to Montecarlo, step:  50
+mean shift:  0.0011474875855901345
+var shift:  0.0035442022045045936
+tolerance:  0.1
+mean: prev,curr:  3.536165278283822 3.5373127658694123
+var: prev,curr:  0.02445750791164461 0.028001710116149204
+mean conv, var conv:  True True
+5
+Welcome to Montecarlo, step:  50
+mean shift:  0.0015544442736210584
+var shift:  0.007178898688409312
+tolerance:  0.1
+mean: prev,curr:  4.304640356700145 4.303085912426524
+var: prev,curr:  0.04575509535905758 0.038576196670648266
+mean conv, var conv:  True True
+6
+Welcome to Montecarlo, step:  50
+mean shift:  0.0013709173077289805
+var shift:  0.001078467995339366
+tolerance:  0.1
+mean: prev,curr:  5.220262016237606 5.218891098929877
+var: prev,curr:  0.016922778505537677 0.01584431051019831
+mean conv, var conv:  True True
+7
+Welcome to Montecarlo, step:  50
+mean shift:  0.024672403492104422
+var shift:  0.004436049862403965
+tolerance:  0.1
+mean: prev,curr:  5.811175843938818 5.835848247430922
+var: prev,curr:  0.05857710171254251 0.054141051850138545
+mean conv, var conv:  True True
+8
+Welcome to Montecarlo, step:  50
+mean shift:  0.0019504328803057192
+var shift:  0.0006523267336737198
+tolerance:  0.1
+mean: prev,curr:  6.061104367130512 6.059153934250206
+var: prev,curr:  0.005226025810478963 0.005878352544152683
+mean conv, var conv:  True True
+9
+Welcome to Montecarlo, step:  50
+mean shift:  0.03358335278096103
+var shift:  0.007514868780283408
+tolerance:  0.1
+mean: prev,curr:  6.049111986651865 6.015528633870904
+var: prev,curr:  0.020409827091056036 0.027924695871339444
+mean conv, var conv:  True True
+10
+Welcome to Montecarlo, step:  50
+mean shift:  0.04007956734798235
+var shift:  0.011159785809419051
+tolerance:  0.1
+mean: prev,curr:  5.931220332562943 5.9712998999109255
+var: prev,curr:  0.05204149974652987 0.04088171393711082
+mean conv, var conv:  True True
+11
+Welcome to Montecarlo, step:  50
+mean shift:  0.009012452847626307
+var shift:  0.006025745838877439
+tolerance:  0.1
+mean: prev,curr:  5.894292932002418 5.903305384850045
+var: prev,curr:  0.07689524407698396 0.07086949823810652
+mean conv, var conv:  True True
+12
+Welcome to Montecarlo, step:  50
+mean shift:  0.03151854706144164
+var shift:  0.00813161088650187
+tolerance:  0.1
+mean: prev,curr:  5.89956673066149 5.931085277722931
+var: prev,curr:  0.09527649830668992 0.08714488742018806
+mean conv, var conv:  True True
+13
+Welcome to Montecarlo, step:  50
+mean shift:  0.0057558208551329315
+var shift:  0.015041271771285697
+tolerance:  0.1
+mean: prev,curr:  5.850613327906733 5.856369148761866
+var: prev,curr:  0.14574366195817795 0.13070239018689225
+mean conv, var conv:  True True
+14
+Welcome to Montecarlo, step:  50
+mean shift:  0.051424736471692434
+var shift:  0.051808853587560294
+tolerance:  0.1
+mean: prev,curr:  5.947570198202137 5.896145461730445
+var: prev,curr:  0.07161100213034993 0.12341985571791023
+mean conv, var conv:  True True
+15
+Welcome to Montecarlo, step:  50
+mean shift:  0.0026448634415778827
+var shift:  0.0011654968683017797
+tolerance:  0.1
+mean: prev,curr:  5.776865611462888 5.77422074802131
+var: prev,curr:  0.19263041677784926 0.19146491990954748
+mean conv, var conv:  True True
+16
+Welcome to Montecarlo, step:  50
+mean shift:  0.013675824111093249
+var shift:  0.010922322719363303
+tolerance:  0.1
+mean: prev,curr:  5.794800517437648 5.7811246933265545
+var: prev,curr:  0.15340222316459953 0.16432454588396284
+mean conv, var conv:  True True
+17
+Welcome to Montecarlo, step:  50
+mean shift:  0.02777531784892684
+var shift:  0.0038084502527389874
+tolerance:  0.1
+mean: prev,curr:  5.778425235442572 5.750649917593645
+var: prev,curr:  0.1969449576530959 0.1931365074003569
+mean conv, var conv:  True True
+18
+Welcome to Montecarlo, step:  50
+mean shift:  0.05537183581176475
+var shift:  0.0045203690231510885
+tolerance:  0.1
+mean: prev,curr:  5.823075964307894 5.7677041284961295
+var: prev,curr:  0.21773897329486072 0.2222593423180118
+mean conv, var conv:  True True
+
+Welcome to Montecarlo, step:  50
+mean shift:  0.11928307388505477
+var shift:  0.12710389330680805
+tolerance:  0.1
+mean: prev,curr:  6.67938045203795 6.798663525923005
+var: prev,curr:  0.37800538015904284 0.2509014868522348
+mean conv, var conv:  False False
+mean shift:  0.0596678849580039
+var shift:  0.11030587199514841
+tolerance:  0.1
+mean: prev,curr:  6.798663525923005 6.738995640965001
+var: prev,curr:  0.2509014868522348 0.3612073588473832
+mean conv, var conv:  True False
+mean shift:  0.023972596726863138
+var shift:  0.03538520434389619
+tolerance:  0.1
+mean: prev,curr:  6.738995640965001 6.762968237691864
+var: prev,curr:  0.3612073588473832 0.325822154503487
+mean conv, var conv:  True True
+lens:  [252, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200]
+convergence:  [(True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True), (True, True)]
+Waiting for all the processes to finish...
