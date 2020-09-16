@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=N262_264_prec2_step_50      # The name of your job, you'll se it in squeue.
+#SBATCH --job-name=N68_prec2_step_500_order4      # The name of your job, you'll se it in squeue.
 #SBATCH --mail-type=END              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
 #SBATCH --mail-user=samadio@sissa.it    # Where to send the mail
 #
@@ -16,7 +16,7 @@
 #
 # ---- Other resources configuration (e.g. GPU) ----
 #
-#SBATCH --gpus=0                     # Total number of GPUs for the job (MAX: 2 x number of nodes, only available on gpu1 and gpu2)
+#SBATCH --gpus=1                     # Total number of GPUs for the job (MAX: 2 x number of nodes, only available on gpu1 and gpu2)
 #[optional] #SBATCH --gpus-per-node=1            # Number of GPUs per node (MAX: 2, only available on gpu1 and gpu2)
 #[optional] #SBATCH --gpus-per-task=1            # Number of GPUs per MPI rank (MAX: 2, only available on gpu1 and gpu2); to be used with --ntasks
 #
@@ -28,8 +28,8 @@
 # ---- Partition, Walltime and Output ----
 #
 #[unconfig] #SBATCH --array=01-10    # Create a job array. Useful for multiple, similar jobs. To use, read this: https://slurm.schedmd.com/job_array.html
-#SBATCH --partition=long1,long2         # Partition (queue). Avail: regular1, regular2, long1, long2, wide1, wide2, gpu1, gpu2. Multiple partitions are possible.
-#SBATCH --time=48:00:00              # Time limit hrs:min:sec
+#SBATCH --partition=gpu1,gpu1         # Partition (queue). Avail: regular1, regular2, long1, long2, wide1, wide2, gpu1, gpu2. Multiple partitions are possible.
+#SBATCH --time=12:00:00              # Time limit hrs:min:sec
 #SBATCH --output=%j.o%j              # Standard output log in TORQUE-style -- WARNING: %x requires a new enough SLURM. Use %j for regular jobs and %A-%a for array jobs
 #SBATCH --error=%j.e%j               # Standard error  log in TORQUE-style -- WARNING: %x requires a new enough SLURM. Use %j for regular jobs and %A-%a for array jobs
 
