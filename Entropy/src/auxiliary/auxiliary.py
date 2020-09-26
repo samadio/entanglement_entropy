@@ -2,6 +2,44 @@ from random import randint
 
 import numpy as np
 from math import log2, gcd, ceil
+from sympy import isprime as isprime
+from math import gcd as GCD
+
+def prime_power(N):
+    """
+            Check if the argument N is a prime power, i.e. exist p prime and i integer s.t. p**i=N
+            If the argument is is a prime power p is returned, otherwise 1 is returned
+            Parameters
+            ----------
+            N:  Integer
+            Candidate prime power
+
+    """
+    
+    roof=int(ceil(log2(N))+1) #integer right after log2(N)
+    
+    roots=[(N**(1./i)) for i in range(2,roof)] 
+    
+    for (i,element) in enumerate(roots):
+        if (element.is_integer() and isprime(int(element))): #then element**(i+2)=N
+            return int(element)
+    return 1
+
+
+
+def get_candidates(Y: int, l_bound:int, up_bound: int) -> list:
+
+        """
+            return N odd which are not prime nor prime powers between bounds 
+        :param l_bound: lower bound, included
+        :param up_bound: upper bound, include
+        :return: list of N
+        """
+
+        if l_bound / 2 == l_bound //2:
+                l_bound+=1
+        candidates = [i for i in range(l_bound,up_bound+1,2) if( (not isprime(i)) and (prime_power(i)==1) and (gcd(Y,i)==1)) ]
+        return candidates
 
 
 def decimal_to_binary(number: int, length: int) -> str:
