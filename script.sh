@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=all7_part2      # The name of your job, you'll se it in squeue.
+#SBATCH --job-name=test      # The name of your job, you'll se it in squeue.
 #SBATCH --mail-type=END              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
 #SBATCH --mail-user=samadio@sissa.it    # Where to send the mail
 #
@@ -65,7 +65,7 @@ cd Entropy/src
 module load gnu8/8.3.0
 module load intelpython3/3.6.8 cuda/10.1
 
-python3 main_cuda_dense_montecarlo.py #test_7.py
+python3 test.py #main_cuda_dense_montecarlo.py
 
 echo "Waiting for all the processes to finish..."
 wait

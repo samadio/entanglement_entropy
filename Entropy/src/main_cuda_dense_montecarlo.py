@@ -4,8 +4,8 @@ from auxiliary.auxiliary import get_candidates
 
 
 Y=13
-numbers = get_candidates(13,65,128)[-9:] #[15, 22,33,66/71,132/131/129]
-maxiter = [50_000] #[1M, 1M, 500k, 50k, 12k]
+numbers = get_candidates(13,129,256)[24:] #[15, 22,33,66/71,132/131/129]
+maxiter = [6_000] #[1M, 1M, 500k, 50k, 12k]
 L_list = [aux.lfy(N) for N in numbers]
 
 print("Ns coprimes with N, odds and not prime powers: ", len(numbers))
@@ -13,7 +13,8 @@ print("Ns coprimes with N, odds and not prime powers: ", len(numbers))
 files = [open("/home/samadio/entanglement_entropy/Entropy/1_percent/all"+str(L_list[0])+"/results_L_" + str(L_list[i]) + "_" +str(maxiter[0]) +"_N_"+str(N)+".py", 'a+') for i,N in enumerate(numbers)]
 
 for i, N in enumerate(numbers):
-    step = max(maxiter[0]//50, 50)
+    #step = max(maxiter[0]//50, 50)
+    step=200
 
     print("from numpy import array", file=files[i])
     print("#step: " +str(step), file=files[i])
