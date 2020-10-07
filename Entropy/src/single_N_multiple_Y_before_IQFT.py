@@ -4,10 +4,10 @@ from auxiliary.auxiliary import get_candidates
 from math import gcd as GCD
 
 
-N = 15
+N = 117
 L = aux.lfy(N)
 Y_list = [i for i in range(2,N) if GCD(i,N)==1]
-maxiter = 1_000_000
+maxiter = 50_000
 
 with open("/home/samadio/entanglement_entropy/Entropy/1_percent/all_Y_N_"+str(N)+".py", 'a+') as file:
 
