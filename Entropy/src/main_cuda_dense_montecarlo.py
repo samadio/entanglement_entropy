@@ -3,10 +3,10 @@ from states import *
 from auxiliary.auxiliary import get_candidates
 
 
-Y=31
+Y=79
 #numbers = get_candidates(13,129,256)[24:] #[15, 22,33,66/71,132/131/129]
-numbers = [51]
-maxiter = [500_000] #[1M, 1M, 500k, 50k, 12k]
+numbers = [123]
+maxiter = [50_000] #[1M, 1M, 500k, 50k, 12k]
 L_list = [aux.lfy(N) for N in numbers]
 
 files = [open("/home/samadio/entanglement_entropy/Entropy/1_percent/results_Y_" + str(Y) + "_N_"+str(N)+".py", 'a+') for i,N in enumerate(numbers)]

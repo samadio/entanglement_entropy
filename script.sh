@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#SBATCH --job-name=Y31N51r16      # The name of your job, you'll se it in squeue.
+#SBATCH --job-name=Y79N123r8      # The name of your job, you'll se it in squeue.
 #SBATCH --mail-type=END              # Mail events (NONE, BEGIN, END, FAIL, ALL). Sends you an email when the job begins, ends, or fails; you can combine options.
 #SBATCH --mail-user=samadio@sissa.it    # Where to send the mail
 #
